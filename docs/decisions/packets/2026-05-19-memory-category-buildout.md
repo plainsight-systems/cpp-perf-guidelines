@@ -38,3 +38,5 @@
 - 2026-05-19 — Packet opened. Memory-category source research started.
 - 2026-05-19 — Source survey completed:
   `docs/research/2026-05-19-memory-allocators-sources.md`.
+- 2026-05-19 — Engine technique-extraction completed:
+  `docs/research/2026-05-19-memory-engine-allocators.md`.

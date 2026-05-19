@@ -23,6 +23,9 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
 
 - [`2026-05-19-memory-allocators-sources.md`](../research/2026-05-19-memory-allocators-sources.md)
   — source survey for the `memory` category.
+- [`2026-05-19-memory-engine-allocators.md`](../research/2026-05-19-memory-engine-allocators.md)
+  — allocator technique extraction from id Tech, Unreal, RE Engine, Sony
+  first-party, and game-engine books.
 
 ## Active Workflow Pointers
 
