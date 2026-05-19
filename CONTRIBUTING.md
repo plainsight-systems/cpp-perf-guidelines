@@ -22,6 +22,22 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
 - Prefer measurable, technique-level guidance over general advice.
 - Guideline IDs are stable and are never reused.
 
+## Sourcing rule
+
+Every guideline is original work. Learn from sources — never copy them.
+
+- Techniques, algorithms, and methods are not copyrightable. You may study any
+  source (books, papers, conference talks, open-source or source-available
+  engine code) and write original guidance about what you learn.
+- Cite where a technique is documented in the guideline's `## References`
+  section. Citing a source — including books and source-available engines such
+  as Unreal — is always acceptable and encouraged.
+- Do not copy or closely paraphrase a source's text or code. Illustrative code
+  samples must be written for this corpus, not lifted or transliterated.
+- Source-available (e.g. Unreal) and copyleft/GPL (e.g. id Tech) code must
+  never be copied into this repository. Study the technique; describe it in
+  your own words.
+
 ## Licensing
 
 By contributing, you agree your contributions are licensed under this
