@@ -40,3 +40,5 @@
   `docs/research/2026-05-19-memory-allocators-sources.md`.
 - 2026-05-19 — Engine technique-extraction completed:
   `docs/research/2026-05-19-memory-engine-allocators.md`.
+- 2026-05-19 — First authoring pass: MEM.2–MEM.6 written. MEM.7–MEM.10
+  remain for a second pass.
