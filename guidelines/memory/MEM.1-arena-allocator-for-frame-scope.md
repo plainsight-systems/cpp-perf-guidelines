@@ -1,11 +1,11 @@
----
-id: MEM.1
-title: Use an arena allocator for allocations bounded by a known scope
-category: memory
-status: draft
-summary: For allocations whose lifetime is bounded by a frame, request, or load step, bump a pointer into a pre-reserved buffer and reset it all at once.
-tags: [arena, allocator, object-pooling]
----
++++
+id = "MEM.1"
+title = "Use an arena allocator for allocations bounded by a known scope"
+category = "memory"
+status = "draft"
+summary = "For allocations whose lifetime is bounded by a frame, request, or load step, bump a pointer into a pre-reserved buffer and reset it all at once."
+tags = ["arena", "allocator", "object-pooling"]
++++
 
 ## Rationale
 

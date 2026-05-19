@@ -1,11 +1,11 @@
----
-id: CACHE.1
-title: Pad independently-written shared fields to a cache line
-category: cache-layout
-status: draft
-summary: When two threads write distinct variables that share a 64-byte cache line, MESI coherency bounces the line between cores; separate hot fields onto their own lines.
-tags: [false-sharing, alignment, cache-line]
----
++++
+id = "CACHE.1"
+title = "Pad independently-written shared fields to a cache line"
+category = "cache-layout"
+status = "draft"
+summary = "When two threads write distinct variables that share a 64-byte cache line, MESI coherency bounces the line between cores; separate hot fields onto their own lines."
+tags = ["false-sharing", "alignment", "cache-line"]
++++
 
 ## Rationale
 

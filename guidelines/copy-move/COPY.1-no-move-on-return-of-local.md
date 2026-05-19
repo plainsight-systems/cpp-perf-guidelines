@@ -1,11 +1,11 @@
----
-id: COPY.1
-title: Do not std::move a local variable in a return statement
-category: copy-move
-status: draft
-summary: Returning a local by plain value is eligible for NRVO; wrapping it in std::move suppresses elision and forces a move, or pessimizes copy-only types.
-tags: [rvo, nrvo, move-semantics]
----
++++
+id = "COPY.1"
+title = "Do not std::move a local variable in a return statement"
+category = "copy-move"
+status = "draft"
+summary = "Returning a local by plain value is eligible for NRVO; wrapping it in std::move suppresses elision and forces a move, or pessimizes copy-only types."
+tags = ["rvo", "nrvo", "move-semantics"]
++++
 
 ## Rationale
 

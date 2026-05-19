@@ -33,7 +33,7 @@ the structure described below; changes here are changes to that contract.
 
 ## Guideline file format
 
-Each guideline is a single Markdown file with **YAML frontmatter** followed by a
+Each guideline is a single Markdown file with **TOML frontmatter** followed by a
 **Markdown body**.
 
 ### Filename
@@ -44,16 +44,29 @@ Each guideline is a single Markdown file with **YAML frontmatter** followed by a
 
 The `<kebab-slug>` portion is exposed by the MCP server as the guideline `anchor`.
 
-### Frontmatter (required block, delimited by `---`)
+### Frontmatter (required block, delimited by `+++`)
+
+A TOML document, opened and closed by a line containing exactly `+++`.
 
 | Field      | Required | Description                                                        |
 |------------|----------|--------------------------------------------------------------------|
-| `id`       | yes      | `<TOKEN>.<n>` — token from `categories.toml`, integer `n`. Stable, never reused. |
+| `id`       | yes      | `"<TOKEN>.<n>"` — token from `categories.toml`, integer `n`. Stable, never reused. |
 | `title`    | yes      | Short imperative title.                                            |
 | `category` | yes      | Must equal a `key` declared in `categories.toml`.                  |
-| `status`   | yes      | `draft` or `stable`.                                               |
+| `status`   | yes      | `"draft"` or `"stable"`.                                           |
 | `summary`  | yes      | One line, ≤ 200 chars. Surfaced in `search_guidelines` results.    |
-| `tags`     | no       | List of lowercase cross-cutting tags (e.g. `[alignment, object-pooling]`). |
+| `tags`     | no       | Array of lowercase cross-cutting tags (e.g. `["alignment", "object-pooling"]`). |
+
+```toml
++++
+id = "MEM.1"
+title = "Use an arena allocator for allocations bounded by a known scope"
+category = "memory"
+status = "draft"
+summary = "One-line summary, surfaced in search results."
+tags = ["arena", "allocator"]
++++
+```
 
 ### Body (Markdown, `##` section headings)
 
