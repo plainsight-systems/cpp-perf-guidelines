@@ -1,0 +1,1 @@
+../../../plainsight-systems-governance/engineering_philosophies.md

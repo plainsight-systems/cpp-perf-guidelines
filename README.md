@@ -13,6 +13,10 @@ It is consumed by the `cpp-perf-guidelines` MCP server in the `mcp-servers`
 workspace, which clones this repo, parses it, and exposes it to agents via the
 Model Context Protocol.
 
+- **Parent entity:** Plainsight Systems LLC — parent-org infrastructure (no operating brand).
+- **Maturity:** early — 3 seed guidelines across 7 categories; most categories not yet populated.
+- **Governance:** follows Plainsight Systems governance; start at [`docs/decisions/MEMORY.md`](docs/decisions/MEMORY.md).
+
 ## Repository layout
 
 ```
