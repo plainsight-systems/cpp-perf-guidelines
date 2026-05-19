@@ -1,0 +1,57 @@
+# Category taxonomy for the cpp-perf-guidelines corpus.
+#
+# key          Directory name under guidelines/ AND the value used in each
+#              guideline's `category:` frontmatter field.
+# token        Uppercase ID prefix. Guideline IDs are <token>.<n>.
+# display_name Human-readable name, surfaced by the `list_category` MCP tool.
+# order        Display / documentation order.
+# description  One-line scope statement.
+
+[[category]]
+key = "memory"
+token = "MEM"
+display_name = "Custom Allocators & Memory Management"
+order = 1
+description = "Allocator types (arena, pool, stack, ring, slab), ownership models, pmr, fragmentation control, page and huge-page sizing."
+
+[[category]]
+key = "copy-move"
+token = "COPY"
+display_name = "Copy & Move Discipline"
+order = 2
+description = "Value semantics, RVO/NRVO, move-only and sink types, eliminating hidden copies."
+
+[[category]]
+key = "cache-layout"
+token = "CACHE"
+display_name = "Data Layout & Cache Behavior"
+order = 3
+description = "AoS/SoA/AoSoA, hot/cold splitting, struct padding and alignment, prefetching, cache-miss reasoning."
+
+[[category]]
+key = "lifetime"
+token = "LIFE"
+display_name = "Object Lifetime & Construction"
+order = 4
+description = "Placement new, std::launder, trivial and implicit-lifetime types, storage reuse, destruction order."
+
+[[category]]
+key = "embedded"
+token = "EMB"
+display_name = "Embedded & Deterministic Constraints"
+order = 5
+description = "No-heap and static allocation, fixed-capacity containers, WCET, stack budgeting, disabling exceptions and RTTI."
+
+[[category]]
+key = "concurrency"
+token = "CONC"
+display_name = "Concurrency & Memory Effects"
+order = 6
+description = "False sharing, cache coherency (MESI), atomics cost, memory ordering, NUMA locality."
+
+[[category]]
+key = "codegen"
+token = "GEN"
+display_name = "SIMD, Branching & Codegen"
+order = 7
+description = "Vectorization, SIMD alignment, branchless code, compiler flags, restrict, LTO and PGO."
