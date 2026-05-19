@@ -1,6 +1,6 @@
 # 2026-05-19-memory-category-buildout: Build out the `memory` category
 
-**Status:** implementing
+**Status:** completed
 **Change class:** local — adds guideline content under `guidelines/memory/`
 
 ## Intent
@@ -21,10 +21,10 @@
 
 ## Acceptance Criteria
 
-- [ ] A `memory`-category source survey exists in `docs/research/`, classifying
+- [x] A `memory`-category source survey exists in `docs/research/`, classifying
       each source by the `CONTRIBUTING.md` sourcing rule.
-- [ ] New `memory` guidelines follow the `README.md` format and parse cleanly.
-- [ ] Every guideline is original prose with a `## References` section; no
+- [x] New `memory` guidelines follow the `README.md` format and parse cleanly.
+- [x] Every guideline is original prose with a `## References` section; no
       copied text or code.
 
 ## Verification Plan
@@ -40,5 +40,7 @@
   `docs/research/2026-05-19-memory-allocators-sources.md`.
 - 2026-05-19 — Engine technique-extraction completed:
   `docs/research/2026-05-19-memory-engine-allocators.md`.
-- 2026-05-19 — First authoring pass: MEM.2–MEM.6 written. MEM.7–MEM.10
-  remain for a second pass.
+- 2026-05-19 — First authoring pass: MEM.2–MEM.6 written.
+- 2026-05-19 — Second authoring pass: MEM.7–MEM.10 written. Corpus parser
+  test parses all 12 guidelines across 7 categories. Packet completed;
+  review and acceptance are the maintainer's call.

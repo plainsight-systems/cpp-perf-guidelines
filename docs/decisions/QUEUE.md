@@ -4,8 +4,7 @@ This file tracks active and accepted work.
 
 ## Active
 
-- `2026-05-19-memory-category-buildout` — research and author the `memory`
-  category. (implementing)
+- None.
 
 ## Ready
 
@@ -13,7 +12,8 @@ This file tracks active and accepted work.
 
 ## Accepted
 
-- None.
+- `2026-05-19-memory-category-buildout` — `memory` category built out
+  (MEM.1–MEM.10). Packet completed; pending maintainer review.
 
 ## Parking Lot
 
