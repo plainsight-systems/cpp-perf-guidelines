@@ -1,1 +1,0 @@
-../../../plainsight-systems-governance/cpp_performance_review.md

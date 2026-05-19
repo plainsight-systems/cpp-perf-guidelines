@@ -1,1 +1,0 @@
-../../../plainsight-systems-governance/plainsight_policies.md

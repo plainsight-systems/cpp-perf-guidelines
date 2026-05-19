@@ -15,7 +15,7 @@ Model Context Protocol.
 
 - **Parent entity:** Plainsight Systems LLC — parent-org infrastructure (no operating brand).
 - **Maturity:** early — 3 seed guidelines across 7 categories; most categories not yet populated.
-- **Governance:** follows Plainsight Systems governance; start at [`docs/decisions/MEMORY.md`](docs/decisions/MEMORY.md).
+- **Governance:** built to the [Plainsight Systems engineering philosophy](https://github.com/plainsight-systems/.github/blob/main/engineering_philosophies.md). To contribute, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Repository layout
 
