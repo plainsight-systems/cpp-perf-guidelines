@@ -9,9 +9,9 @@ minimize allocations and access memory predictably, but never *how*. This corpus
 owns the concrete technique layer: custom allocators, hardware-aware data layout,
 copy/move discipline, object lifetime, and embedded constraints.
 
-It is consumed by the `cpp-perf-guidelines` MCP server in the
-[`mcp-servers`](https://github.com/) workspace, which clones this repo, parses it,
-and exposes it to agents via the Model Context Protocol.
+It is consumed by the `cpp-perf-guidelines` MCP server in the `mcp-servers`
+workspace, which clones this repo, parses it, and exposes it to agents via the
+Model Context Protocol.
 
 ## Repository layout
 
@@ -107,4 +107,12 @@ See [`categories.toml`](categories.toml). The 7 categories and their ID tokens:
 
 ## License
 
-MIT
+This repository is dual-licensed to separate prose from code:
+
+- **Guideline content** — the prose of every guideline, `categories.toml`, and
+  this README — is licensed under
+  [Creative Commons Attribution 4.0 International](LICENSE-CC-BY) (CC BY 4.0).
+  Reuse and adaptation are permitted, including commercially, with attribution.
+- **Code** — code samples embedded in the guidelines, and any scripts or
+  tooling in this repository — is licensed under the
+  [Apache License 2.0](LICENSE-APACHE).
