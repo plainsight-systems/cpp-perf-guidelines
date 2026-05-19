@@ -21,7 +21,8 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
 
 ## Research Index
 
-- None yet.
+- [`2026-05-19-memory-allocators-sources.md`](../research/2026-05-19-memory-allocators-sources.md)
+  — source survey for the `memory` category.
 
 ## Active Workflow Pointers
 
