@@ -4,7 +4,8 @@ This file tracks active and accepted work.
 
 ## Active
 
-- None.
+- `2026-05-20-cache-layout-category-buildout` — research and author the
+  `cache-layout` category. (implementing)
 
 ## Ready
 
