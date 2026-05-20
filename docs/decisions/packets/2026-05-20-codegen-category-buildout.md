@@ -45,3 +45,5 @@
 ## Records
 
 - 2026-05-20 — Packet opened. Codegen category research started.
+- 2026-05-20 — Technique-extraction research completed:
+  `docs/research/2026-05-20-codegen-techniques.md`.

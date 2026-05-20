@@ -52,6 +52,12 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
   data structures via Folly / moodycamel / libcds / TBB, hazard pointers
   and RCU for reclamation, NUMA locality, spinlocks vs mutex vs
   lock-free).
+- [`2026-05-20-codegen-techniques.md`](../research/2026-05-20-codegen-techniques.md)
+  — codegen-nudge technique extraction (branch hints, branchless vs
+  predicted branches with mispredict cost, `restrict` and TBAA, LTO /
+  ThinLTO, instrumented PGO and sampling PGO / AutoFDO / CSSPGO,
+  attribute-driven inlining, hot / cold placement, the optimiser's
+  anti-promises).
 
 ## Active Workflow Pointers
 
