@@ -43,3 +43,7 @@
 ## Records
 
 - 2026-05-20 — Packet opened. Embedded category research started.
+- 2026-05-20 — Technique-extraction research completed:
+  `docs/research/2026-05-20-embedded-techniques.md`.
+- 2026-05-20 — First authoring pass: EMB.1–EMB.4 written. EMB.5–EMB.8
+  remain for a second pass.
