@@ -42,3 +42,5 @@
 - 2026-05-19 — Packet opened. Copy-move category research started.
 - 2026-05-19 — Technique-extraction research completed:
   `docs/research/2026-05-19-copy-move-semantics.md`.
+- 2026-05-20 — First authoring pass: COPY.2–COPY.5 written. COPY.6–COPY.8
+  remain for a second pass.
