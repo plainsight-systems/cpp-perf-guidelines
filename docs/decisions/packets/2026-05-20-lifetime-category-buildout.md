@@ -1,6 +1,6 @@
 # 2026-05-20-lifetime-category-buildout: Build out the `lifetime` category
 
-**Status:** implementing
+**Status:** completed
 **Change class:** local — adds guideline content under `guidelines/lifetime/`
 
 ## Intent
@@ -28,12 +28,12 @@
 
 ## Acceptance Criteria
 
-- [ ] A `lifetime` technique-extraction research note exists in
+- [x] A `lifetime` technique-extraction research note exists in
       `docs/research/`, classifying sources by the `CONTRIBUTING.md` sourcing
       rule.
-- [ ] New `lifetime` guidelines follow the `README.md` format and parse
+- [x] New `lifetime` guidelines follow the `README.md` format and parse
       cleanly.
-- [ ] Every guideline is original prose with a `## References` section; no
+- [x] Every guideline is original prose with a `## References` section; no
       copied text or code.
 
 ## Verification Plan
@@ -47,5 +47,7 @@
 - 2026-05-20 — Packet opened. Lifetime category research started.
 - 2026-05-20 — Technique-extraction research completed:
   `docs/research/2026-05-20-lifetime-techniques.md`.
-- 2026-05-20 — First authoring pass: LIFE.1–LIFE.4 written. LIFE.5–LIFE.8
-  remain for a second pass.
+- 2026-05-20 — First authoring pass: LIFE.1–LIFE.4 written.
+- 2026-05-20 — Second authoring pass: LIFE.5–LIFE.8 written. Corpus
+  parser test parses all 34 guidelines across 8 categories. Packet
+  completed; review and acceptance are the maintainer's call.
