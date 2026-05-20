@@ -4,8 +4,7 @@ This file tracks active and accepted work.
 
 ## Active
 
-- `2026-05-20-codegen-category-buildout` — research and author the
-  `codegen` category. (implementing)
+- None.
 
 ## Ready
 
@@ -27,6 +26,8 @@ This file tracks active and accepted work.
 - `2026-05-20-concurrency-category-buildout` — `concurrency` category
   built out (CONC.1–CONC.8). Packet completed; pending maintainer
   review.
+- `2026-05-20-codegen-category-buildout` — `codegen` category built out
+  (GEN.1–GEN.8). Packet completed; pending maintainer review.
 
 ## Parking Lot
 

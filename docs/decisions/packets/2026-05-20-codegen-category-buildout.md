@@ -1,6 +1,6 @@
 # 2026-05-20-codegen-category-buildout: Build out the `codegen` category
 
-**Status:** implementing
+**Status:** completed
 **Change class:** local — adds guideline content under `guidelines/codegen/`
 
 ## Intent
@@ -28,12 +28,12 @@
 
 ## Acceptance Criteria
 
-- [ ] A `codegen` technique-extraction research note exists in
+- [x] A `codegen` technique-extraction research note exists in
       `docs/research/`, classifying sources by the `CONTRIBUTING.md`
       sourcing rule.
-- [ ] New `codegen` guidelines follow the `README.md` format and parse
+- [x] New `codegen` guidelines follow the `README.md` format and parse
       cleanly.
-- [ ] Every guideline is original prose with a `## References` section;
+- [x] Every guideline is original prose with a `## References` section;
       no copied text or code.
 
 ## Verification Plan
@@ -47,5 +47,7 @@
 - 2026-05-20 — Packet opened. Codegen category research started.
 - 2026-05-20 — Technique-extraction research completed:
   `docs/research/2026-05-20-codegen-techniques.md`.
-- 2026-05-20 — First authoring pass: GEN.1–GEN.4 written. GEN.5–GEN.8
-  remain for a second pass.
+- 2026-05-20 — First authoring pass: GEN.1–GEN.4 written.
+- 2026-05-20 — Second authoring pass: GEN.5–GEN.8 written. Corpus
+  parser test parses all 58 guidelines across 8 categories. Packet
+  completed; review and acceptance are the maintainer's call.
