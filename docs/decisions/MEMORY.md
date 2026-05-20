@@ -26,6 +26,10 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
 - [`2026-05-19-memory-engine-allocators.md`](../research/2026-05-19-memory-engine-allocators.md)
   — allocator technique extraction from id Tech, Unreal, RE Engine, Sony
   first-party, and game-engine books.
+- [`2026-05-19-copy-move-semantics.md`](../research/2026-05-19-copy-move-semantics.md)
+  — copy/move technique extraction (RVO/NRVO, P0135, sink-parameter
+  idioms, `noexcept` move and `std::vector`, trivially-copyable /
+  relocatable, moved-from state, ABI).
 
 ## Active Workflow Pointers
 
