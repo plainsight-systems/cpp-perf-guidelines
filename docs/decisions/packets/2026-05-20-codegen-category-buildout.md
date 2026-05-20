@@ -47,3 +47,5 @@
 - 2026-05-20 — Packet opened. Codegen category research started.
 - 2026-05-20 — Technique-extraction research completed:
   `docs/research/2026-05-20-codegen-techniques.md`.
+- 2026-05-20 — First authoring pass: GEN.1–GEN.4 written. GEN.5–GEN.8
+  remain for a second pass.
