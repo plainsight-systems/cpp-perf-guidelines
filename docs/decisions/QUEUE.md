@@ -4,7 +4,8 @@ This file tracks active and accepted work.
 
 ## Active
 
-- None.
+- `2026-05-19-copy-move-category-buildout` — research and author the
+  `copy-move` category. (implementing)
 
 ## Ready
 
