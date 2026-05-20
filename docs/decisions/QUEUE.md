@@ -4,7 +4,8 @@ This file tracks active and accepted work.
 
 ## Active
 
-- None.
+- `2026-05-20-embedded-category-buildout` — research and author the
+  `embedded` category. (implementing)
 
 ## Ready
 
