@@ -1,6 +1,6 @@
 # 2026-05-20-simd-category-buildout: Build out the `simd` category
 
-**Status:** implementing
+**Status:** completed
 **Change class:** local — adds guideline content under `guidelines/simd/`
 
 ## Intent
@@ -25,12 +25,12 @@
 
 ## Acceptance Criteria
 
-- [ ] A `simd` technique-extraction research note exists in
+- [x] A `simd` technique-extraction research note exists in
       `docs/research/`, classifying sources by the `CONTRIBUTING.md`
       sourcing rule.
-- [ ] New `simd` guidelines follow the `README.md` format and parse
+- [x] New `simd` guidelines follow the `README.md` format and parse
       cleanly.
-- [ ] Every guideline is original prose with a `## References` section;
+- [x] Every guideline is original prose with a `## References` section;
       no copied text or code.
 
 ## Verification Plan
@@ -49,3 +49,10 @@
   loads, portable SIMD libraries, vectoriser missed-vectorisation
   report). Corpus parser test passes (62 guidelines across 8
   categories).
+- 2026-05-20 — Second authoring pass: SIMD.5–SIMD.8 written
+  (gather is a trap, AVX-512 + runtime dispatch, AVX-512 masks /
+  SVE predication, hand-assembly only for AMX / vendor extensions /
+  constant-time crypto). Corpus parser test passes (66 guidelines
+  across 8 categories). All eight categories of the corpus are now
+  populated; packet completed; review and acceptance are the
+  maintainer's call.
