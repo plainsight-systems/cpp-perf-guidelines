@@ -44,3 +44,8 @@
 - 2026-05-20 — Packet opened. SIMD category research started.
 - 2026-05-20 — Technique-extraction research completed:
   `docs/research/2026-05-20-simd-techniques.md`.
+- 2026-05-20 — First authoring pass: SIMD.1–SIMD.4 written
+  (autovectorisation/intrinsics/`std::simd` choice, SoA for linear
+  loads, portable SIMD libraries, vectoriser missed-vectorisation
+  report). Corpus parser test passes (62 guidelines across 8
+  categories).
