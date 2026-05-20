@@ -52,6 +52,13 @@ description = "False sharing, cache coherency (MESI), atomics cost, memory order
 [[category]]
 key = "codegen"
 token = "GEN"
-display_name = "SIMD, Branching & Codegen"
+display_name = "Branching & Codegen"
 order = 7
-description = "Vectorization, SIMD alignment, branchless code, compiler flags, restrict, LTO and PGO."
+description = "Branchless code, [[likely]]/[[unlikely]] hints, compiler flags, restrict, LTO, PGO, attribute-driven inlining."
+
+[[category]]
+key = "simd"
+token = "SIMD"
+display_name = "SIMD & Vectorization"
+order = 8
+description = "Vectorization-friendly layout, intrinsics vs std::simd vs autovectorization, alignment for vector loads, gather/scatter, ISA targeting, and the last-resort drop to hand-written assembly."
