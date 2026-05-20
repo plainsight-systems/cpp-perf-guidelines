@@ -4,7 +4,8 @@ This file tracks active and accepted work.
 
 ## Active
 
-- None.
+- `2026-05-20-lifetime-category-buildout` — research and author the
+  `lifetime` category. (implementing)
 
 ## Ready
 
