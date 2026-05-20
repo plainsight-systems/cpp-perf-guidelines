@@ -46,6 +46,12 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
   deterministic allocators TLSF/o1heap, stack budgeting,
   `constexpr`/`consteval` for flash, `volatile` vs `std::atomic`,
   freestanding C++ subset, ISO 26262/MISRA/AUTOSAR/JSF framing).
+- [`2026-05-20-concurrency-techniques.md`](../research/2026-05-20-concurrency-techniques.md)
+  — concurrency technique extraction (C++ memory model, six memory
+  orders mapped to x86 / ARMv8 cost, MESI / coherence cost, lock-free
+  data structures via Folly / moodycamel / libcds / TBB, hazard pointers
+  and RCU for reclamation, NUMA locality, spinlocks vs mutex vs
+  lock-free).
 
 ## Active Workflow Pointers
 
