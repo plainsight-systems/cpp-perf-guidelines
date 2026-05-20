@@ -1,6 +1,6 @@
 # 2026-05-19-copy-move-category-buildout: Build out the `copy-move` category
 
-**Status:** implementing
+**Status:** completed
 **Change class:** local — adds guideline content under `guidelines/copy-move/`
 
 ## Intent
@@ -23,12 +23,12 @@
 
 ## Acceptance Criteria
 
-- [ ] A `copy-move` source survey and technique-extraction note exist in
+- [x] A `copy-move` source survey and technique-extraction note exist in
       `docs/research/`, classifying each source by the `CONTRIBUTING.md`
       sourcing rule.
-- [ ] New `copy-move` guidelines follow the `README.md` format and parse
+- [x] New `copy-move` guidelines follow the `README.md` format and parse
       cleanly.
-- [ ] Every guideline is original prose with a `## References` section; no
+- [x] Every guideline is original prose with a `## References` section; no
       copied text or code.
 
 ## Verification Plan
@@ -42,5 +42,7 @@
 - 2026-05-19 — Packet opened. Copy-move category research started.
 - 2026-05-19 — Technique-extraction research completed:
   `docs/research/2026-05-19-copy-move-semantics.md`.
-- 2026-05-20 — First authoring pass: COPY.2–COPY.5 written. COPY.6–COPY.8
-  remain for a second pass.
+- 2026-05-20 — First authoring pass: COPY.2–COPY.5 written.
+- 2026-05-20 — Second authoring pass: COPY.6–COPY.8 written. Corpus
+  parser test parses all 19 guidelines across 7 categories. Packet
+  completed; review and acceptance are the maintainer's call.
