@@ -45,3 +45,5 @@
 ## Records
 
 - 2026-05-20 — Packet opened. Lifetime category research started.
+- 2026-05-20 — Technique-extraction research completed:
+  `docs/research/2026-05-20-lifetime-techniques.md`.

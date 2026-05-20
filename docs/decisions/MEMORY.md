@@ -35,6 +35,11 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
   cache line size and `hardware_destructive_interference_size`,
   struct ordering and hot/cold splitting, vector vs list, software
   prefetching, 3C taxonomy + profiler tools).
+- [`2026-05-20-lifetime-techniques.md`](../research/2026-05-20-lifetime-techniques.md)
+  — lifetime technique extraction (the four-way triviality distinction,
+  placement new, `std::launder`, P0593 implicit object creation, P2590
+  `start_lifetime_as`, static-init-order fiasco, object-pool lifetime,
+  `aligned_storage` deprecation).
 
 ## Active Workflow Pointers
 
