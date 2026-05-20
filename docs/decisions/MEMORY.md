@@ -40,6 +40,12 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
   placement new, `std::launder`, P0593 implicit object creation, P2590
   `start_lifetime_as`, static-init-order fiasco, object-pool lifetime,
   `aligned_storage` deprecation).
+- [`2026-05-20-embedded-techniques.md`](../research/2026-05-20-embedded-techniques.md)
+  — embedded technique extraction (steady-state-no-allocation discipline,
+  exceptions/RTTI cost and bans, fixed-capacity containers from ETL/EASTL,
+  deterministic allocators TLSF/o1heap, stack budgeting,
+  `constexpr`/`consteval` for flash, `volatile` vs `std::atomic`,
+  freestanding C++ subset, ISO 26262/MISRA/AUTOSAR/JSF framing).
 
 ## Active Workflow Pointers
 
