@@ -14,7 +14,7 @@ workspace, which clones this repo, parses it, and exposes it to agents via the
 Model Context Protocol.
 
 - **Parent entity:** Plainsight Systems LLC — parent-org infrastructure (no operating brand).
-- **Maturity:** early — `memory` (10), `copy-move` (8), `cache-layout` (8), `lifetime` (8), and `embedded` (8) are populated; the remaining three categories (`concurrency`, `codegen`, `simd`) are not yet populated.
+- **Maturity:** early — `memory` (10), `copy-move` (8), `cache-layout` (8), `lifetime` (8), and `embedded` (8) are populated; `concurrency` has 4 guidelines; the remaining two categories (`codegen`, `simd`) are not yet populated.
 - **Governance:** built to the [Plainsight Systems engineering philosophy](https://github.com/plainsight-systems/.github/blob/main/engineering_philosophies.md). To contribute, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Repository layout
