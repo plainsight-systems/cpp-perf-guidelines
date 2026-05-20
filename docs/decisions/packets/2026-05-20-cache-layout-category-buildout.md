@@ -44,3 +44,5 @@
 - 2026-05-20 — Packet opened. Cache-layout category research started.
 - 2026-05-20 — Technique-extraction research completed:
   `docs/research/2026-05-20-cache-layout-techniques.md`.
+- 2026-05-20 — First authoring pass: CACHE.2–CACHE.5 written. CACHE.6–CACHE.8
+  remain for a second pass.
