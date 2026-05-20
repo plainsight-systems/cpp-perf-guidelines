@@ -58,6 +58,12 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
   ThinLTO, instrumented PGO and sampling PGO / AutoFDO / CSSPGO,
   attribute-driven inlining, hot / cold placement, the optimiser's
   anti-promises).
+- [`2026-05-20-simd-techniques.md`](../research/2026-05-20-simd-techniques.md)
+  — SIMD technique extraction (autovec vs intrinsics vs `std::simd`,
+  the portable libraries Highway / xsimd / Eve, alignment now mostly
+  a correctness concern, gather as a trap, AVX-512 downclocking is
+  historical, AVX-512 masks and SVE predication as the step change,
+  the AMX → SME transition).
 
 ## Active Workflow Pointers
 
