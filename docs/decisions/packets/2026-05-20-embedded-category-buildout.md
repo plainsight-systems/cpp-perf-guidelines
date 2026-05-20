@@ -1,6 +1,6 @@
 # 2026-05-20-embedded-category-buildout: Build out the `embedded` category
 
-**Status:** implementing
+**Status:** completed
 **Change class:** local — adds guideline content under `guidelines/embedded/`
 
 ## Intent
@@ -26,12 +26,12 @@
 
 ## Acceptance Criteria
 
-- [ ] An `embedded` technique-extraction research note exists in
+- [x] An `embedded` technique-extraction research note exists in
       `docs/research/`, classifying sources by the `CONTRIBUTING.md`
       sourcing rule.
-- [ ] New `embedded` guidelines follow the `README.md` format and parse
+- [x] New `embedded` guidelines follow the `README.md` format and parse
       cleanly.
-- [ ] Every guideline is original prose with a `## References` section; no
+- [x] Every guideline is original prose with a `## References` section; no
       copied text or code.
 
 ## Verification Plan
@@ -45,5 +45,7 @@
 - 2026-05-20 — Packet opened. Embedded category research started.
 - 2026-05-20 — Technique-extraction research completed:
   `docs/research/2026-05-20-embedded-techniques.md`.
-- 2026-05-20 — First authoring pass: EMB.1–EMB.4 written. EMB.5–EMB.8
-  remain for a second pass.
+- 2026-05-20 — First authoring pass: EMB.1–EMB.4 written.
+- 2026-05-20 — Second authoring pass: EMB.5–EMB.8 written. Corpus parser
+  test parses all 42 guidelines across 8 categories. Packet completed;
+  review and acceptance are the maintainer's call.

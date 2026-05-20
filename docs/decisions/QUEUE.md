@@ -4,8 +4,7 @@ This file tracks active and accepted work.
 
 ## Active
 
-- `2026-05-20-embedded-category-buildout` — research and author the
-  `embedded` category. (implementing)
+- None.
 
 ## Ready
 
@@ -22,6 +21,8 @@ This file tracks active and accepted work.
   review.
 - `2026-05-20-lifetime-category-buildout` — `lifetime` category built
   out (LIFE.1–LIFE.8). Packet completed; pending maintainer review.
+- `2026-05-20-embedded-category-buildout` — `embedded` category built
+  out (EMB.1–EMB.8). Packet completed; pending maintainer review.
 
 ## Parking Lot
 
