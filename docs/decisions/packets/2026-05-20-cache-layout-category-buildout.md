@@ -1,6 +1,6 @@
 # 2026-05-20-cache-layout-category-buildout: Build out the `cache-layout` category
 
-**Status:** implementing
+**Status:** completed
 **Change class:** local — adds guideline content under `guidelines/cache-layout/`
 
 ## Intent
@@ -25,12 +25,12 @@
 
 ## Acceptance Criteria
 
-- [ ] A `cache-layout` technique-extraction research note exists in
+- [x] A `cache-layout` technique-extraction research note exists in
       `docs/research/`, classifying sources by the `CONTRIBUTING.md` sourcing
       rule.
-- [ ] New `cache-layout` guidelines follow the `README.md` format and parse
+- [x] New `cache-layout` guidelines follow the `README.md` format and parse
       cleanly.
-- [ ] Every guideline is original prose with a `## References` section; no
+- [x] Every guideline is original prose with a `## References` section; no
       copied text or code.
 
 ## Verification Plan
@@ -44,5 +44,7 @@
 - 2026-05-20 — Packet opened. Cache-layout category research started.
 - 2026-05-20 — Technique-extraction research completed:
   `docs/research/2026-05-20-cache-layout-techniques.md`.
-- 2026-05-20 — First authoring pass: CACHE.2–CACHE.5 written. CACHE.6–CACHE.8
-  remain for a second pass.
+- 2026-05-20 — First authoring pass: CACHE.2–CACHE.5 written.
+- 2026-05-20 — Second authoring pass: CACHE.6–CACHE.8 written. Corpus
+  parser test parses all 26 guidelines across 7 categories. Packet
+  completed; review and acceptance are the maintainer's call.
