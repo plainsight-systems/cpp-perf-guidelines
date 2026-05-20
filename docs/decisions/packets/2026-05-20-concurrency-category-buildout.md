@@ -1,6 +1,6 @@
 # 2026-05-20-concurrency-category-buildout: Build out the `concurrency` category
 
-**Status:** implementing
+**Status:** completed
 **Change class:** local — adds guideline content under `guidelines/concurrency/`
 
 ## Intent
@@ -29,12 +29,12 @@
 
 ## Acceptance Criteria
 
-- [ ] A `concurrency` technique-extraction research note exists in
+- [x] A `concurrency` technique-extraction research note exists in
       `docs/research/`, classifying sources by the `CONTRIBUTING.md`
       sourcing rule.
-- [ ] New `concurrency` guidelines follow the `README.md` format and parse
+- [x] New `concurrency` guidelines follow the `README.md` format and parse
       cleanly.
-- [ ] Every guideline is original prose with a `## References` section; no
+- [x] Every guideline is original prose with a `## References` section; no
       copied text or code.
 
 ## Verification Plan
@@ -48,5 +48,7 @@
 - 2026-05-20 — Packet opened. Concurrency category research started.
 - 2026-05-20 — Technique-extraction research completed:
   `docs/research/2026-05-20-concurrency-techniques.md`.
-- 2026-05-20 — First authoring pass: CONC.1–CONC.4 written. CONC.5–CONC.8
-  remain for a second pass.
+- 2026-05-20 — First authoring pass: CONC.1–CONC.4 written.
+- 2026-05-20 — Second authoring pass: CONC.5–CONC.8 written. Corpus
+  parser test parses all 50 guidelines across 8 categories. Packet
+  completed; review and acceptance are the maintainer's call.

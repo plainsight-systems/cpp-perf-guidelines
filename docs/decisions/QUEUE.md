@@ -4,8 +4,7 @@ This file tracks active and accepted work.
 
 ## Active
 
-- `2026-05-20-concurrency-category-buildout` — research and author the
-  `concurrency` category. (implementing)
+- None.
 
 ## Ready
 
@@ -24,6 +23,9 @@ This file tracks active and accepted work.
   out (LIFE.1–LIFE.8). Packet completed; pending maintainer review.
 - `2026-05-20-embedded-category-buildout` — `embedded` category built
   out (EMB.1–EMB.8). Packet completed; pending maintainer review.
+- `2026-05-20-concurrency-category-buildout` — `concurrency` category
+  built out (CONC.1–CONC.8). Packet completed; pending maintainer
+  review.
 
 ## Parking Lot
 
