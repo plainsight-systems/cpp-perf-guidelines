@@ -42,3 +42,5 @@
 ## Records
 
 - 2026-05-20 — Packet opened. Cache-layout category research started.
+- 2026-05-20 — Technique-extraction research completed:
+  `docs/research/2026-05-20-cache-layout-techniques.md`.

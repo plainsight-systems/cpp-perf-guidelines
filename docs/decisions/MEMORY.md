@@ -30,6 +30,11 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
   — copy/move technique extraction (RVO/NRVO, P0135, sink-parameter
   idioms, `noexcept` move and `std::vector`, trivially-copyable /
   relocatable, moved-from state, ABI).
+- [`2026-05-20-cache-layout-techniques.md`](../research/2026-05-20-cache-layout-techniques.md)
+  — cache-layout technique extraction (Acton DOD framing, AoS/SoA/AoSoA,
+  cache line size and `hardware_destructive_interference_size`,
+  struct ordering and hot/cold splitting, vector vs list, software
+  prefetching, 3C taxonomy + profiler tools).
 
 ## Active Workflow Pointers
 
