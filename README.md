@@ -17,6 +17,32 @@ Model Context Protocol.
 - **Maturity:** early — all eight categories are populated: `memory` (10), `copy-move` (8), `cache-layout` (8), `lifetime` (8), `embedded` (8), `concurrency` (8), `codegen` (8), and `simd` (8). All guidelines are `draft`; promotion to `stable` is the maintainer's call.
 - **Governance:** built to the [Plainsight Systems engineering philosophy](https://github.com/plainsight-systems/.github/blob/main/engineering_philosophies.md). To contribute, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
+## How to use this corpus
+
+You can read the corpus directly under [`guidelines/`](guidelines/), or consume
+it through the companion MCP server in the
+[`plainsight-systems/mcp-servers`](https://github.com/plainsight-systems/mcp-servers)
+repository.
+
+The MCP server exposes:
+
+- `search_guidelines` — semantic search across the corpus.
+- `get_guideline` — fetch a guideline by ID, such as `MEM.1`.
+- `list_category` — browse a category, such as `memory` or `simd`.
+- `update_guidelines` — refresh the indexed corpus from this repository.
+
+## Validation
+
+Before opening a pull request, run the corpus validator with Python 3.11+:
+
+```sh
+python3 tools/validate_corpus.py
+```
+
+The validator checks the parser contract: category declarations, frontmatter,
+stable ID/category/token relationships, required sections, summary length, and
+local Markdown links.
+
 ## Repository layout
 
 ```
@@ -110,6 +136,7 @@ See [`categories.toml`](categories.toml). The 8 categories and their ID tokens:
 - New guidelines start at `status: draft`. Promote to `stable` only after review.
 - Prefer measurable, technique-level guidance over general advice — the general
   advice already lives in the ISO Core Guidelines.
+- Run `python3 tools/validate_corpus.py` with Python 3.11+ before submitting changes.
 
 ## License
 

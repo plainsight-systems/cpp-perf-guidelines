@@ -3,7 +3,7 @@ id = "EMB.4"
 title = "When dynamic allocation is unavoidable, use a deterministic allocator and size the worst case"
 category = "embedded"
 status = "draft"
-summary = "Some systems genuinely need dynamic lifetimes — protocol reassembly, variable message buffers. General malloc is unbounded and fragments. Use a constant-time, bounded-fragmentation allocator (TLSF or o1heap) and size the arena offline."
+summary = "When dynamic lifetimes are unavoidable, use a bounded-fragmentation deterministic allocator such as TLSF or o1heap, sized offline."
 tags = ["tlsf", "o1heap", "deterministic-allocation", "real-time"]
 +++
 

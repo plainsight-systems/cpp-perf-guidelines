@@ -3,7 +3,7 @@ id = "SIMD.1"
 title = "Pick autovectorisation, intrinsics, or std::simd by maintenance cost vs expressiveness"
 category = "simd"
 status = "draft"
-summary = "Three approaches with three trade-off profiles. Autovec for portable scalar-shaped loops. Intrinsics for kernels the compiler can't reach. std::simd as the standardised portable middle path landing in C++26."
+summary = "Use autovec for portable scalar-shaped loops, intrinsics for kernels the compiler cannot express, and std::simd as the portable middle path."
 tags = ["autovectorisation", "intrinsics", "std-simd"]
 +++
 

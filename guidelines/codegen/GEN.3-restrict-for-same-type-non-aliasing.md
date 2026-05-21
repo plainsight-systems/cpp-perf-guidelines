@@ -3,7 +3,7 @@ id = "GEN.3"
 title = "Use __restrict__ when same-type pointers are guaranteed not to alias"
 category = "codegen"
 status = "draft"
-summary = "TBAA already tells the compiler that pointers of incompatible types don't alias. __restrict__ is the tool for same-type pointers — and it's what unlocks loop fusion, register promotion, and vectorisation."
+summary = "TBAA covers incompatible types. __restrict__ is for same-type non-aliasing and can unlock loop fusion, register promotion, and vectorisation."
 tags = ["restrict", "aliasing", "tbaa", "vectorisation"]
 +++
 

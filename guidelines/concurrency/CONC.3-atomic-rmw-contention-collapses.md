@@ -3,7 +3,7 @@ id = "CONC.3"
 title = "Atomic RMW under contention collapses non-linearly — shard, batch, or stay single-writer"
 category = "concurrency"
 status = "draft"
-summary = "An uncontended atomic CAS is ~15-30 cycles on x86; under N contenders, throughput drops to O(1/N) or worse and per-op latency reaches thousands of cycles. The fix is to remove the contention, not optimize the CAS."
+summary = "Atomic RMW under contention collapses throughput and inflates latency. Remove the shared hot spot instead of tuning the CAS."
 tags = ["atomic", "rmw", "contention", "false-sharing", "sharding"]
 +++
 

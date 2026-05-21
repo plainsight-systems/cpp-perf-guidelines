@@ -3,7 +3,7 @@ id = "EMB.3"
 title = "Build embedded targets with -fno-exceptions and -fno-rtti"
 category = "embedded"
 status = "draft"
-summary = "Exceptions add unwind tables to flash and an unbounded throw path that can OOM; RTTI adds type_info strings and a non-O(1) dynamic_cast. Disable both. Replace dynamic_cast with std::variant + std::visit."
+summary = "Exceptions and RTTI add flash, metadata, and unbounded paths. Disable both on embedded targets and use explicit alternatives."
 tags = ["no-exceptions", "no-rtti", "noexcept", "variant"]
 +++
 

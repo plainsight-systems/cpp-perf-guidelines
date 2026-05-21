@@ -22,6 +22,15 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
 - Prefer measurable, technique-level guidance over general advice.
 - Guideline IDs are stable and are never reused.
 
+Before submitting, run this with Python 3.11+:
+
+```sh
+python3 tools/validate_corpus.py
+```
+
+The validator checks category declarations, frontmatter, ID/category/token
+consistency, required sections, summary length, and local Markdown links.
+
 ## Sourcing rule
 
 Every guideline is original work. Learn from sources — never copy them.

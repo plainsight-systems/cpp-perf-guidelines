@@ -3,7 +3,7 @@ id = "CONC.6"
 title = "Lock-free reclamation: hazard pointers, RCU, or leak — pick one deliberately"
 category = "concurrency"
 status = "draft"
-summary = "A lock-free pop unlinks a node, but a peer may still be reading through a pointer to it. Freeing then is use-after-free. Hazard pointers and RCU are the two standard answers; sometimes leak-then-bulk-collect is the right one."
+summary = "Lock-free removal does not make memory safe to free. Use hazard pointers, RCU, epochs, or bulk collection to handle reclamation."
 tags = ["lock-free", "hazard-pointers", "rcu", "memory-reclamation"]
 +++
 

@@ -3,7 +3,7 @@ id = "EMB.2"
 title = "Prefer fixed-capacity containers (ETL, EASTL fixed_*) — the STL throws and allocates"
 category = "embedded"
 status = "draft"
-summary = "std containers allocate per insert and signal failure via exceptions. On embedded targets where heap and exceptions are banned, use ETL or EASTL fixed_* containers: capacity is part of the type, storage is inline."
+summary = "On embedded targets where heap and exceptions are banned, use fixed-capacity containers with inline storage and explicit capacity."
 tags = ["fixed-capacity-container", "etl", "eastl", "embedded"]
 +++
 

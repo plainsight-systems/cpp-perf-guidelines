@@ -3,7 +3,7 @@ id = "EMB.8"
 title = "Know the freestanding C++ subset — C++23 expanded what's mandated"
 category = "embedded"
 status = "draft"
-summary = "On bare-metal targets only a subset of the standard library is available. C++23 (P1642, P2407) significantly expanded what the standard mandates as freestanding, including std::expected, std::span, and more of std::optional."
+summary = "Bare-metal targets get only the freestanding library subset. C++23 expanded it, but you still need to know what your toolchain provides."
 tags = ["freestanding", "p1642", "p2407", "bare-metal"]
 +++
 

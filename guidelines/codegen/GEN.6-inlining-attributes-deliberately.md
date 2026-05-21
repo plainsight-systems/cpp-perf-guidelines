@@ -3,7 +3,7 @@ id = "GEN.6"
 title = "Use always_inline / flatten / noinline sparingly — the inliner is usually right"
 category = "codegen"
 status = "draft"
-summary = "The inliner's heuristic is the right default. Override only with reason: always_inline for tiny hot utilities and intrinsic wrappers; noinline for cold helpers and debug stability; flatten only on a single dispatch root."
+summary = "Trust the inliner by default. Override deliberately: always_inline for tiny hot wrappers, noinline for cold/debug paths, flatten rarely."
 tags = ["inlining", "always_inline", "noinline", "flatten"]
 +++
 

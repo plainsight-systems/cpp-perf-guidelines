@@ -3,7 +3,7 @@ id = "GEN.2"
 title = "Pick branchless versus predicted branch by predictability and dependency, not aesthetic"
 category = "codegen"
 status = "draft"
-summary = "Modern branch predictors are 95-99% accurate on stable patterns; a predicted branch is effectively free. Branchless code (cmov, csel, bitmask) wins on unpredictable data and short bodies; it loses on predictable branches because cmov serialises the dependency chain."
+summary = "Predicted branches are cheap. Branchless code wins on unpredictable data and short bodies; it loses when it serializes a predictable path."
 tags = ["branchless", "cmov", "branch-prediction", "data-dependent-latency"]
 +++
 

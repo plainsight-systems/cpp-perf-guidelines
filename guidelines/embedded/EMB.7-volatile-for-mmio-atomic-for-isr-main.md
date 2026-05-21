@@ -3,7 +3,7 @@ id = "EMB.7"
 title = "volatile for memory-mapped I/O; std::atomic for ISR-main concurrency"
 category = "embedded"
 status = "draft"
-summary = "volatile prevents the compiler from removing, reordering, or coalescing hardware-observable accesses. It provides no atomicity. Use std::atomic with explicit memory_order for ISR-main signalling; use both when both apply."
+summary = "Use volatile for memory-mapped I/O visibility and std::atomic for ISR-main synchronization; use both only when both apply."
 tags = ["volatile", "atomic", "mmio", "memory-order", "isr"]
 +++
 

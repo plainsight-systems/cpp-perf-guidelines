@@ -3,7 +3,7 @@ id = "CONC.4"
 title = "Choose spinlock, mutex, or lock-free by expected wait time"
 category = "concurrency"
 status = "draft"
-summary = "Spinlocks for sub-microsecond critical sections without preemption risk; futex-backed std::mutex as the general default; lock-free only when blocking is unacceptable. The wrong primitive is more wrong than the wrong tuning."
+summary = "Use spinlocks only for tiny non-preempted waits, std::mutex as the default, and lock-free only when blocking is unacceptable."
 tags = ["spinlock", "mutex", "lock-free", "futex"]
 +++
 

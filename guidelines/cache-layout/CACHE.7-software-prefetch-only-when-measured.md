@@ -3,7 +3,7 @@ id = "CACHE.7"
 title = "Use software prefetching only for pointer-chasing or gather — and measure"
 category = "cache-layout"
 status = "draft"
-summary = "Hardware prefetchers handle linear and small-stride access for free. Software prefetch is useful only for pointer-chasing and gather patterns the hardware cannot predict — and it hurts in specific, measurable ways when misused."
+summary = "Hardware prefetchers handle linear access for free. Software prefetch helps only when measurement proves the hardware cannot predict the pattern."
 tags = ["prefetch", "memory-level-parallelism", "perf"]
 +++
 

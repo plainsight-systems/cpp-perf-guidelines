@@ -3,7 +3,7 @@ id = "SIMD.6"
 title = "Use AVX-512 freely on Sapphire Rapids and Zen 4+ — runtime-dispatch for mixed fleets"
 category = "simd"
 status = "draft"
-summary = "The AVX-512 downclocking story is over on current silicon. The real cost is binary fragmentation: one binary, multiple ISAs, dispatched per CPU. Function-multiversioning or hand-rolled dispatch tables do the job."
+summary = "On current silicon, AVX-512 is usually a dispatch and binary-management problem, not a blanket downclocking problem."
 tags = ["avx-512", "runtime-dispatch", "ifunc", "target-attribute", "target-clones"]
 +++
 

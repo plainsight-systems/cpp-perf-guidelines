@@ -3,7 +3,7 @@ id = "SIMD.8"
 title = "Drop to hand-written assembly only for AMX, unsupported vendor extensions, or constant-time crypto"
 category = "simd"
 status = "draft"
-summary = "The compiler beats hand-written intrinsics in almost every modern case. The legitimate uses for assembly today are matrix-extension ISAs the intrinsic surface does not cover, vendor-specific extensions with no intrinsic, and constant-time crypto where compiler choice is a security risk."
+summary = "Use assembly only for missing intrinsic coverage, vendor-specific extensions, or constant-time crypto where compiler choice is a risk."
 tags = ["inline-assembly", "amx", "sme", "constant-time", "crypto"]
 +++
 

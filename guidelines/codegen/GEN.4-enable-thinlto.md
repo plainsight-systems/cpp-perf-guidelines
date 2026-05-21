@@ -3,7 +3,7 @@ id = "GEN.4"
 title = "Enable ThinLTO as the default — cross-TU inlining and devirtualisation are the real wins"
 category = "codegen"
 status = "draft"
-summary = "Without LTO, every TU boundary is opaque to the inliner. ThinLTO restores cross-TU inlining and whole-program devirtualisation at a few-times link cost. 5-15% runtime wins are routine; embedded code-size wins are larger."
+summary = "ThinLTO restores cross-TU inlining and whole-program devirtualisation at moderate link cost. Runtime and code-size wins are common."
 tags = ["lto", "thinlto", "cross-tu-inlining", "devirtualisation"]
 +++
 

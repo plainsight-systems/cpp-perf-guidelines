@@ -3,7 +3,7 @@ id = "CONC.7"
 title = "Plan for NUMA: first-touch allocation pins pages; pin threads to nodes; avoid cross-socket DRAM"
 category = "concurrency"
 status = "draft"
-summary = "Cross-socket DRAM is 1.5-10x slower than local DRAM. First-touch allocation anchors a page to the writing thread's node; allocate from the worker, not from main; pin threads to nodes for predictable latency."
+summary = "Cross-socket DRAM is slower than local DRAM. Use first-touch allocation and thread pinning so workers mostly access local pages."
 tags = ["numa", "first-touch", "thread-pinning", "memory-locality"]
 +++
 

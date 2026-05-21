@@ -3,7 +3,7 @@ id = "CONC.8"
 title = "Lock-free is for forward-progress, not throughput — measure before reaching for it"
 category = "concurrency"
 status = "draft"
-summary = "A well-tuned std::mutex routinely outperforms a naive lock-free queue. The reason to reach for lock-free is forward-progress guarantees — real-time deadlines, signal-safety, priority-inversion avoidance — not raw speed."
+summary = "Lock-free is for forward-progress constraints, not automatic speed. A tuned mutex often beats naive lock-free code."
 tags = ["lock-free", "anti-pattern", "real-time", "mutex"]
 +++
 

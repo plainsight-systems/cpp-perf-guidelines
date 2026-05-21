@@ -3,7 +3,7 @@ id = "SIMD.7"
 title = "AVX-512 masks and SVE predication unlock loops the shuffle-blend model could not vectorise"
 category = "simd"
 status = "draft"
-summary = "First-class mask registers (`k0..k7`) and SVE predicate registers turn data-dependent branches, tail loops, and partial-vector stores from open-coded blends into native primitives — the difference between vectorising and not."
+summary = "Use first-class masks and predicates for data-dependent branches, tail loops, and partial-vector stores instead of scalar control flow."
 tags = ["avx-512", "sve", "mask-registers", "predication", "tail-loop"]
 +++
 

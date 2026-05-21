@@ -3,7 +3,7 @@ id = "GEN.5"
 title = "Use PGO when feasible; AutoFDO or CSSPGO when instrumentation is impractical"
 category = "codegen"
 status = "draft"
-summary = "PGO turns the compiler's heuristics into evidence. Instrumented PGO when you can run a representative workload; sampling PGO (AutoFDO, CSSPGO) when you cannot. 5-20% runtime is typical, 30%+ on dispatch-heavy code."
+summary = "PGO replaces compiler guesses with profile data. Use instrumented PGO for representative workloads and sampling PGO when instrumentation is impractical."
 tags = ["pgo", "autofdo", "csspgo", "bolt"]
 +++
 
