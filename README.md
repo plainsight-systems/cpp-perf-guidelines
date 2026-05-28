@@ -14,7 +14,7 @@ workspace, which clones this repo, parses it, and exposes it to agents via the
 Model Context Protocol.
 
 - **Parent entity:** Plainsight Systems LLC — parent-org infrastructure (no operating brand).
-- **Maturity:** early — all eight categories are populated: `memory` (10), `copy-move` (8), `cache-layout` (8), `lifetime` (8), `embedded` (8), `concurrency` (8), `codegen` (8), and `simd` (8). All guidelines are `draft`; promotion to `stable` is the maintainer's call.
+- **Maturity:** early — all nine categories are populated: `memory` (10), `copy-move` (8), `cache-layout` (8), `lifetime` (8), `embedded` (8), `concurrency` (8), `codegen` (8), `simd` (8), and `telemetry` (11). All guidelines are `draft`; promotion to `stable` is the maintainer's call.
 - **Governance:** built to the [Plainsight Systems engineering philosophy](https://github.com/plainsight-systems/.github/blob/main/engineering_philosophies.md). To contribute, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## How to use this corpus
@@ -46,7 +46,7 @@ local Markdown links.
 ## Repository layout
 
 ```
-categories.toml          Declares the 8 categories (key, ID token, display name).
+categories.toml          Declares the 9 categories (key, ID token, display name).
 guidelines/
   memory/                One subdirectory per category key.
     MEM.1-<slug>.md      One file per guideline.
@@ -57,6 +57,7 @@ guidelines/
   concurrency/
   codegen/
   simd/
+  telemetry/
 ```
 
 The document format **is** the parser contract. The MCP server's parser depends on
@@ -117,7 +118,7 @@ tags = ["arena", "allocator"]
 
 ## Categories
 
-See [`categories.toml`](categories.toml). The 8 categories and their ID tokens:
+See [`categories.toml`](categories.toml). The 9 categories and their ID tokens:
 
 | Token  | Category                              |
 |--------|---------------------------------------|
@@ -129,6 +130,7 @@ See [`categories.toml`](categories.toml). The 8 categories and their ID tokens:
 | `CONC` | Concurrency & Memory Effects          |
 | `GEN`  | Branching & Codegen                   |
 | `SIMD` | SIMD & Vectorization                  |
+| `TLM`  | Telemetry & Observability Harnesses   |
 
 ## Contributing
 

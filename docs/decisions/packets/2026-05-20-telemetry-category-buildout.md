@@ -1,6 +1,6 @@
 # 2026-05-20-telemetry-category-buildout: Build out the `telemetry` category
 
-**Status:** implementing
+**Status:** completed
 **Change class:** local — adds guideline content under `guidelines/telemetry/`
 
 ## Intent
@@ -57,18 +57,18 @@ source discipline, frame markers, thread naming).
 
 ## Acceptance Criteria
 
-- [ ] A `telemetry` technique-extraction research note exists in
+- [x] A `telemetry` technique-extraction research note exists in
       `docs/research/`, classifying sources by the `CONTRIBUTING.md`
       sourcing rule and integrating both the seed Vigil documents
       and the independent deep-dive research pass.
-- [ ] The `telemetry` category is declared in `categories.toml`
+- [x] The `telemetry` category is declared in `categories.toml`
       (key, token, display_name, order, description).
-- [ ] New `telemetry` guidelines follow the `README.md` format and
+- [x] New `telemetry` guidelines follow the `README.md` format and
       parse cleanly under `tools/validate_corpus.py` and the MCP
       server's parser test.
-- [ ] Every guideline is original prose with a `## References`
+- [x] Every guideline is original prose with a `## References`
       section; no copied text or code.
-- [ ] The README maturity line is updated to reflect the ninth
+- [x] The README maturity line is updated to reflect the ninth
       category.
 
 ## Verification Plan
@@ -87,4 +87,20 @@ source discipline, frame markers, thread naming).
 - 2026-05-20 — `categories.toml` updated with the ninth category;
   `guidelines/telemetry/` directory created.
 - 2026-05-20 — Independent deep-dive research pass commissioned to
-  extend beyond the Vigil seed documents. Pending.
+  extend beyond the Vigil seed documents.
+- 2026-05-20 — Research landed at
+  `docs/research/2026-05-20-telemetry-techniques.md`. Slate
+  expanded from 8 to 11 guidelines: 8 from the draft, plus TLM.9
+  (timestamp source discipline), TLM.10 (per-thread lock-free
+  emit with lossy ring), and TLM.11 (GPU/accelerator timestamp
+  correlation).
+- 2026-05-20 — First authoring pass: TLM.1–TLM.5 written
+  (compile-out, channels, static names, macro front door,
+  structured events).
+- 2026-05-20 — Second authoring pass: TLM.6–TLM.11 written
+  (diagnostic-vs-benchmark, sparse bookmarks, artifact-scan
+  validation, timestamp source discipline, per-thread lock-free
+  emit + lossy ring, GPU/accelerator timestamp correlation).
+- 2026-05-20 — Validator and MCP server parser test both pass
+  (77 guidelines across 9 categories). Packet completed; review
+  and acceptance are the maintainer's call.
