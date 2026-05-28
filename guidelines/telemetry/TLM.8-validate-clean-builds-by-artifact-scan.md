@@ -4,7 +4,7 @@ title = "Validate clean builds by artifact scan — `strings` and `nm` prove dia
 category = "telemetry"
 status = "draft"
 summary = "Compile-out claims are aspirations until the linked archive confirms them. Scan with `strings` and `nm -C` for diagnostic symbols, label strings, and trace sinks; fail closed on unapproved residuals."
-tags = ["validation", "build-gate", "strings", "nm", "ci", "vigil"]
+tags = ["validation", "build-gate", "strings", "nm", "ci"]
 +++
 
 ## Rationale
@@ -20,29 +20,31 @@ standard:
 
 - `strings <archive>` — every printable string literal in the
   binary. Diagnostic environment variable names
-  (`VIGIL_GEMMA4_MTP_DEBUG_STATS`), trace label strings
-  (`mlx.backend.generate_impl`), and diagnostic banner text
+  (`APP_SCHEDULER_DEBUG_STATS`), trace label strings
+  (`app.render.generate_impl`), and diagnostic banner text
   all surface here.
 - `nm -C <archive>` — every symbol (function, global) in the
   binary, demangled. Trace sink functions
   (`trace::ScopedPhase`, `trace::duration`), diagnostic
-  helpers (`read_gemma4_mtp_debug_stats_from_env`), and
+  helpers (`read_app_debug_stats_from_env`), and
   self-test bodies surface here.
 - `objdump -d <archive>` — disassembled object code; the
   last resort when names and strings are inconclusive and
   the question is "does this region contain instructions at
   all?"
 
-The Vigil packet 142 pattern, generalised:
+The pattern, generalised from an inference-engine adoption
+(see References):
 
 1. **Define the contract.** "A `--performance` build must
    contain no symbol matching `trace::*`, no string
-   matching `VIGIL_TRACE_*`, no string matching
-   `VIGIL_*_DEBUG_*`, no self-test helper names."
+   matching `APP_TRACE_*`, no string matching
+   `APP_*_DEBUG_*`, no self-test helper names."
 2. **List the approved residuals.** Some symbols/strings
-   will be present and are explicitly approved (Vigil
-   packet 140's product-config adapter symbols, for
-   example). The list is short, named, and reviewed.
+   will be present and are explicitly approved (for example,
+   product-configuration adapter symbols that belong to a
+   prior, unrelated decision). The list is short, named, and
+   reviewed.
 3. **Run the scan in CI on every release-class build.**
    Not just at release time; not just when someone
    remembers.
@@ -68,8 +70,10 @@ and the build process surfaces.
 The novelty of this guideline within the published profiler
 documentation landscape is the **validation step itself**.
 Every profiler claims its disabled macros compile to nothing;
-none of them ship a "check that this is true" tool. Vigil's
-contribution was making the check mandatory.
+none of them ship a "check that this is true" tool. The
+inference-engine adoption cited in References was where the
+check was made mandatory in CI; that's the contribution worth
+flagging.
 
 ## Guidance
 
@@ -78,7 +82,7 @@ contribution was making the check mandatory.
   (`.so`/`.dylib`), and final executables.
 - **Maintain a forbidden-pattern list** for the build
   profile. Use prefix patterns (`trace::*`,
-  `VIGIL_*_DEBUG_*`) and explicit symbol names where the
+  `APP_*_DEBUG_*`) and explicit symbol names where the
   prefix is too broad.
 - **Maintain an approved-residual-symbol list** with
   justification. Each entry names the symbol, names the
@@ -115,7 +119,7 @@ ARCHIVE="${1:?usage: validate_clean_build.sh <archive.a>}"
 # Forbidden symbol patterns in a clean performance build.
 FORBIDDEN_NM_PATTERNS=(
     'trace::'
-    'vigil::diagnostic::'
+    'app::diagnostic::'
     'read_.*_debug_stats_from_env'
     'self_test'
     'audit_'
@@ -123,16 +127,16 @@ FORBIDDEN_NM_PATTERNS=(
 
 # Forbidden string patterns in a clean performance build.
 FORBIDDEN_STRINGS_PATTERNS=(
-    'VIGIL_TRACE_'
-    'VIGIL_.*_DEBUG_'
-    'VIGIL_GEMMA4_MTP_DEBUG_STATS'
-    'mlx\.backend\.'      # trace marker name space
+    'APP_TRACE_'
+    'APP_.*_DEBUG_'
+    'APP_SCHEDULER_DEBUG_STATS'
+    'app\.render\.'      # trace marker name space
     '--diagnostic'
 )
 
 # Approved residual symbols (product-config adapter from packet 140).
 APPROVED_RESIDUAL=(
-    'read_gemma4_mtp_product_config_from_env'
+    'read_app_product_config_from_env'
 )
 
 # 1. Symbol scan.
@@ -170,9 +174,9 @@ echo "OK: clean build scan passed for $ARCHIVE"
 # expects to find trace symbols and trace labels here.
 # scripts/validate_diagnostic_build.sh — fail closed if the
 # diagnostic build is *missing* the trace machinery.
-nm -C build-diagnostic/src/libvigil_core.a | grep -q 'trace::' \
+nm -C build-diagnostic/src/libapp_core.a | grep -q 'trace::' \
     || { echo "FAIL: diagnostic build missing trace symbols"; exit 2; }
-strings build-diagnostic/src/libvigil_backend.a | grep -q 'mlx\.backend\.' \
+strings build-diagnostic/src/libapp_backend.a | grep -q 'app\.render\.' \
     || { echo "FAIL: diagnostic build missing trace labels"; exit 2; }
 ```
 
@@ -211,10 +215,12 @@ strings build-diagnostic/src/libvigil_backend.a | grep -q 'mlx\.backend\.' \
 
 ## References
 
-- Vigil packet 142, *Unreal-Style Observability Boundary* —
-  the canonical worked example: clean archive scans for
-  `strings` and `nm -C`, approved-residual-symbol list with
-  justification, build-profile fail-closed.
+- Plainsight Systems internal engineering records (the **Vigil**
+  ML inference engine project) — the canonical worked example:
+  clean archive scans for `strings` and `nm -C`, approved-
+  residual-symbol list with justification, build-profile
+  fail-closed. Cited for technique provenance; the documents
+  are Plainsight-private and not publicly available.
 - `nm(1)`, `strings(1)`, `objdump(1)` — GNU binutils
   manpages.
 - LLVM `llvm-nm`, `llvm-strings`, `llvm-objdump` — equivalent

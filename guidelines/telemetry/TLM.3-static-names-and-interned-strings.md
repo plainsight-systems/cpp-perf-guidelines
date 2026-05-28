@@ -36,7 +36,7 @@ Concrete examples from the field:
   payload is a pointer to a static `SourceLocationData` struct.
 - **Unity** documents `ProfilerMarker` as a *static* handle:
   `static readonly ProfilerMarker k_DecodeMarker = new
-  ProfilerMarker("Vigil.Decode")`. The marker handle is the
+  ProfilerMarker("App.Decode")`. The marker handle is the
   thing crossed; the string is registered once.
 - **Perfetto** distinguishes `StaticString` (no runtime cost,
   string is constant for the binary lifetime) from
@@ -99,7 +99,7 @@ nanoseconds.
 // (Tracy, Optick, Insights, ITT) interns the string once at
 // first emit; the hot path carries only the handle.
 void decode_loop(std::span<const Token> tokens) noexcept {
-    VIGIL_ZONE("decode.loop");
+    APP_ZONE("decode.loop");
     for (const auto& tok : tokens) {
         process_token(tok);
     }
@@ -108,8 +108,8 @@ void decode_loop(std::span<const Token> tokens) noexcept {
 // Good: per-iteration variation as a *value*, not a name.
 void process_batch(std::span<const Item> items) noexcept {
     for (const auto& it : items) {
-        VIGIL_ZONE("process.item");        // static name
-        VIGIL_ZONE_VALUE(it.id);            // varying value
+        APP_ZONE("process.item");        // static name
+        APP_ZONE_VALUE(it.id);            // varying value
         process(it);
     }
 }
@@ -117,7 +117,7 @@ void process_batch(std::span<const Item> items) noexcept {
 // Good: static handle (Unity-style). The handle is registered
 // once at static-init time; every Begin/End call site crosses
 // the handle, not the string.
-namespace vigil {
+namespace app {
     static const TraceHandle kDecodeZone =
         MakeZone("decode.loop");
 
@@ -131,7 +131,7 @@ namespace vigil {
 // keys the timeline by name forever after.
 void worker_thread_main(int worker_id) {
     char name[16];
-    std::snprintf(name, sizeof(name), "vigil-worker-%d", worker_id);
+    std::snprintf(name, sizeof(name), "app-worker-%d", worker_id);
     pthread_setname_np(pthread_self(), name);   // Linux/glibc
     // (different signature on macOS; SetThreadDescription on Windows)
 
@@ -144,7 +144,7 @@ void worker_thread_main(int worker_id) {
 void process_batch_bad(std::span<const Item> items) noexcept {
     for (const auto& it : items) {
         const auto name = std::format("process.item[{}]", it.id);
-        VIGIL_ZONE(name.c_str());      // alloc + format + copy
+        APP_ZONE(name.c_str());      // alloc + format + copy
         process(it);
     }
 }

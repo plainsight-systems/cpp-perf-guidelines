@@ -24,7 +24,7 @@ interpretation of the rest of the timeline changes:
 - An allocator was reset.
 - A user pressed pause.
 - The renderer changed quality tier.
-- An MTP policy decision was made (the Vigil example).
+- A scheduling-policy decision was made (the example below).
 
 They are not for progress. A bookmark per token in a decode
 loop, per pixel in a render loop, per row in a database scan,
@@ -82,7 +82,7 @@ are reserved for the genuinely sparse.
   emitting a bookmark inside a hot loop, switch to a
   counter or a zone.
 - **For state with N possible values, encode it as a counter.**
-  `TracyPlot("mtp.policy", policy_id)` produces a step
+  `TracyPlot("scheduler.policy", policy_id)` produces a step
   function in the analyzer that conveys exactly the same
   information as a bookmark per transition, at lower cost
   and with a cleaner UI.
@@ -98,21 +98,21 @@ are reserved for the genuinely sparse.
 ```cpp
 // Good: bookmark only on transition. Comparing the current
 // policy to the new one; bookmarking the new state's name.
-namespace vigil::mtp {
+namespace app::scheduler {
     enum class Policy { kConservative, kBalanced, kAggressive };
 
     void apply_policy(Policy desired) noexcept {
-        VIGIL_ZONE("mtp.apply_policy");
+        APP_ZONE("scheduler.apply_policy");
         if (desired == current_policy_) return;
 
         // Transition. Bookmark with the new state.
         switch (desired) {
             case Policy::kConservative:
-                VIGIL_BOOKMARK("mtp.policy=conservative"); break;
+                APP_BOOKMARK("scheduler.policy=conservative"); break;
             case Policy::kBalanced:
-                VIGIL_BOOKMARK("mtp.policy=balanced"); break;
+                APP_BOOKMARK("scheduler.policy=balanced"); break;
             case Policy::kAggressive:
-                VIGIL_BOOKMARK("mtp.policy=aggressive"); break;
+                APP_BOOKMARK("scheduler.policy=aggressive"); break;
         }
         current_policy_ = desired;
         // ... apply ...
@@ -125,7 +125,7 @@ namespace vigil::mtp {
 void evaluate_policy_every_step(std::span<const Sample> samples) noexcept {
     for (const auto& s : samples) {
         const Policy p = choose_policy(s);
-        VIGIL_COUNTER("mtp.policy", static_cast<std::uint64_t>(p));
+        APP_COUNTER("scheduler.policy", static_cast<std::uint64_t>(p));
         apply_policy(p);                  // bookmark only on transition
     }
 }
@@ -136,8 +136,8 @@ void evaluate_policy_every_step(std::span<const Sample> samples) noexcept {
 void evaluate_policy_every_step_bad(std::span<const Sample> samples) noexcept {
     for (const auto& s : samples) {
         const Policy p = choose_policy(s);
-        VIGIL_BOOKMARK("policy_evaluated");          // every iteration
-        VIGIL_BOOKMARK("chose_policy");              // every iteration
+        APP_BOOKMARK("policy_evaluated");          // every iteration
+        APP_BOOKMARK("chose_policy");              // every iteration
         apply_policy(p);
     }
 }
@@ -147,7 +147,7 @@ void evaluate_policy_every_step_bad(std::span<const Sample> samples) noexcept {
 // previous and next bookmarks to know "from what to what."
 void apply_policy_bad(Policy desired) noexcept {
     if (desired != current_policy_) {
-        VIGIL_BOOKMARK("policy_changed");            // change to what?
+        APP_BOOKMARK("policy_changed");            // change to what?
         current_policy_ = desired;
     }
 }

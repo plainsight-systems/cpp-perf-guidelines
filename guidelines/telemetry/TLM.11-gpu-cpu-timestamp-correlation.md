@@ -105,10 +105,10 @@ The discipline:
 
 ### Where this matters for the corpus
 
-The consuming project (Vigil, an MLX inference engine on
-Apple Silicon) operates exactly in this regime: decode
-work runs partly on the CPU (sampler, post-processing)
-and partly on the GPU (matrix kernels). A trace that
+An ML inference engine on Apple Silicon (MLX on the GPU,
+sampler and post-processing on the CPU) operates exactly
+in this regime: decode work runs partly on the CPU and
+partly on the GPU, and a trace that
 correlates these is the difference between "we know
 where the time went" and "we know the CPU side of where
 the time went." Game engines have the same need for

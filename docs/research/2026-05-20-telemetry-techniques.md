@@ -17,19 +17,26 @@ Sources are classified per the `CONTRIBUTING.md` sourcing rule:
 - **Study-only code** — proprietary, undocumented, or NDA.
 - **Permissive code** — MIT / BSD / Apache-2.0 / similar.
 
-Seed material from the consuming project (`vigil`):
+Seed material — two internal Plainsight Systems engineering
+records from the **Vigil** ML inference engine project. They
+are *Plainsight-private*: cited here for technique provenance,
+not reproduced in this corpus, and not publicly available.
+Named once for full context; subsequent references in this
+note use generic terms ("the seed material", "internal source").
 
-- `vigil/docs/research/packet133_game_engine_profiling_patterns.md`
-  — cross-engine survey (Unreal Stats, Insights Trace, CSV Profiler,
-  Unity ProfilerMarker, Godot Performance, Tracy). Eight distilled
+- *Game-engine profiling and debug patterns* — cross-engine
+  survey (Unreal Stats, Insights Trace, CSV Profiler, Unity
+  ProfilerMarker, Godot Performance, Tracy). Eight distilled
   design rules.
-- `vigil/docs/decisions/packets/142-unreal-style-observability-boundary.md`
-  — Vigil's adoption packet: macro front door, compile-gate
-  inventory, artifact-scan validation, observer-effect labeling.
+- *Unreal-style observability boundary* — the adoption decision
+  that operationalised the eight rules: macro front door,
+  compile-gate inventory, artifact-scan validation, observer-
+  effect labeling.
 
-The Vigil documents are **citable** for the principles they
-articulate (they are original research/decision notes written for
-Vigil); they are reproduced nowhere in this corpus, only cited.
+These are **cite-by-reference** sources for the corpus —
+treated like an unpublished engineering paper. The principles
+they articulate are technique-level and not copyrightable; the
+documents themselves are not reproduced.
 
 ---
 
@@ -64,7 +71,8 @@ shape is the same.
 - **Compile out by default.** Release/shipping builds carry zero
   instrumentation cost. Macros expand to nothing. Tracy's
   `TRACY_ENABLE`, Unity's conditional `Begin`/`End`, Optick's
-  `optick.config.h`, the Vigil `VIGIL_ENABLE_TRACE` gate.
+  `optick.config.h`, and the seed material's `APP_ENABLE_TRACE`
+  gate.
 - **Channels.** CPU timing, counters, memory, GPU/accelerator,
   file/I-O, frames, locks, bookmarks, and payloads are separate
   channels with independent activation. Unreal Insights names them
@@ -90,13 +98,13 @@ shape is the same.
   carry an observer-effect label and cannot be quoted as clean
   throughput. Unity's "deep profiling" disclaimer, Unreal CSV
   Profiler's "not in shipping" doc, Tracy's enabled-build
-  acknowledgement, Vigil's build-profile fail-closed at the build
-  script.
+  acknowledgement, and the seed material's build-profile
+  fail-closed at the build script.
 - **Sparse bookmarks for state changes.** Bookmarks (Unreal
   `TRACE_BOOKMARK`, CSV `CSV_EVENT`, Tracy `TracyMessage`) are
   for *transitions* — policy changes, scene loads, GC events —
   not for per-iteration progress.
-- **Artifact-scan validation.** Vigil packet 142's contribution:
+- **Artifact-scan validation.** The seed material's contribution:
   prove the disabled path is genuinely empty by scanning shipped
   archives with `strings` and `nm -C` for diagnostic symbols, env
   names, and trace-sink labels. The novelty is the *validation
@@ -107,7 +115,7 @@ The eight bullets above are the draft slate for TLM.1–TLM.8.
 
 ## 3. Gaps in the draft — what the cross-engine survey missed
 
-Going past the Unreal-and-Unity baseline of the Vigil seed material
+Going past the Unreal-and-Unity baseline of the seed material
 into Tracy's manual, Optick's source, Microprofile's design,
 Perfetto's SDK, Intel ITT, PIX, RAD Telemetry's public discussion,
 and the Linux `perf` / `user_events` / CTF lineage surfaces two
@@ -310,10 +318,10 @@ expand.
   `GetClockCalibration`, Vulkan `VK_EXT_calibrated_timestamps`,
   Metal counters, the calibration-drift problem. Relevant for
   game engines and inference workloads with accelerator time
-  (Vigil); deferred to a separate decision because adding it
-  forces a TLM.11 and conflicts with the corpus's 8–10 per
-  category rhythm. Worth flagging to the maintainer as the most
-  defensible eleventh candidate.
+  (the seed material's workload class); deferred to a separate
+  decision because adding it forces a TLM.11 and conflicts
+  with the corpus's 8–10 per-category rhythm. Worth flagging
+  to the maintainer as the most defensible eleventh candidate.
 - **Build flags vs sampling-profiler stack attribution.**
   `-fno-omit-frame-pointer`, `--call-graph dwarf` vs `lbr` vs
   `fp` — real, but more codegen than telemetry, and overlaps
@@ -349,10 +357,11 @@ The strongest candidate for an eleventh guideline is **GPU /
 accelerator timestamp correlation** — Vulkan
 `VK_EXT_calibrated_timestamps`, D3D12 `GetClockCalibration`, Metal
 counters. Relevant for game engines and inference workloads with
-heterogeneous time. The case for keeping it is that the consuming
-project (Vigil, an MLX inference engine) operates exactly in that
-regime; the case against is the per-category rhythm of 8–10
-guidelines. Decision deferred to the maintainer.
+heterogeneous time. The case for keeping it is that the seed
+material's workload (an MLX-based ML inference engine on Apple
+Silicon) operates exactly in that regime; the case against is
+the per-category rhythm of 8–10 guidelines. Decision deferred
+to the maintainer.
 
 The runner-up candidate is **sampling vs instrumented profilers as
 complementary methodology**. The case for keeping it is that the
@@ -420,8 +429,12 @@ a paragraph inside TLM.6.
 
 ### Seed material (cite-by-reference, internal to Plainsight Systems)
 
-- Vigil, *Packet 133 — Game-Engine Profiling and Debug Patterns*.
-- Vigil, *Packet 142 — Unreal-Style Observability Boundary*.
+- Plainsight Systems internal engineering records from the
+  **Vigil** ML inference engine project: (a) a cross-engine
+  profiling-patterns research note, and (b) an observability-
+  boundary decision. Both are Plainsight-private and not
+  publicly available; cited for technique provenance, not
+  reproduced.
 
 ### Books (cite-by-reference)
 

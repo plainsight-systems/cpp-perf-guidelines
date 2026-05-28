@@ -4,7 +4,7 @@ title = "Diagnostic mode is not benchmark mode — telemetry-enabled runs carry 
 category = "telemetry"
 status = "draft"
 summary = "Telemetry-enabled runs carry an observer-effect label and cannot be quoted as clean throughput. The build system fails closed against `--benchmark --trace`; artefacts name their build profile."
-tags = ["observer-effect", "benchmark", "build-profile", "fail-closed", "vigil"]
+tags = ["observer-effect", "benchmark", "build-profile", "fail-closed"]
 +++
 
 ## Rationale
@@ -37,8 +37,8 @@ The mature pattern is **build-profile fail-closed**. The build
 system has explicit profiles — `--performance`, `--benchmark`,
 `--profile`, `--trace`, `--test` — and the combinations that
 violate the contract are *rejected by the build script*, not
-flagged after the fact. Vigil packet 142 is the canonical
-worked example: `scripts/build.sh --performance --trace` exits
+flagged after the fact. A canonical worked example (see
+References): `scripts/build.sh --performance --trace` exits
 with status 2 and no artefact is produced. The check is at
 build time because it is the last point where a human can
 intervene before a polluted artefact reaches a measurement
@@ -54,9 +54,10 @@ Engine evidence:
 - **Tracy** acknowledges that an enabled build is a
   profiling build; the documentation expects this and treats
   it as a feature, not a flaw.
-- **Vigil packet 142** formalised this: `--performance` and
-  `--benchmark` profiles are rejected at the build script if
-  any trace/diagnostic flag is set, with exit code 2.
+- **An ML inference engine's build script** (see References)
+  formalised this: `--performance` and `--benchmark` profiles
+  are rejected at the build script if any trace/diagnostic
+  flag is set, with exit code 2.
 
 A related but distinct point: **sampling profilers are
 different.** `perf record`, Instruments Time Profiler, VTune
@@ -72,8 +73,8 @@ against a clean build *without* changing what was built.
 The artefact contract:
 
 - Every benchmark result names the build profile it was
-  produced under (`vigil-bench-mlx-performance-no-trace`,
-  not `vigil-bench`).
+  produced under (`bench-performance-no-trace`,
+  not `bench`).
 - A diagnostic run is labeled diagnostic in its own filename
   and metadata.
 - The two are never aggregated into the same dataset.
@@ -123,15 +124,15 @@ case "$1 $2" in
         exit 2
         ;;
     "--performance"|"--benchmark")
-        # Build with VIGIL_PROFILE_ENABLED undefined; no trace
+        # Build with APP_PROFILE_ENABLED undefined; no trace
         # macro expansions, no diagnostic env parsing.
-        cmake -DVIGIL_TRACE=OFF -DVIGIL_DIAGNOSTIC=OFF ...
+        cmake -DAPP_TRACE=OFF -DAPP_DIAGNOSTIC=OFF ...
         ;;
     "--trace")
-        # Diagnostic build; produces vigil-bench-diagnostic-*
+        # Diagnostic build; produces bench-diagnostic-*
         # artefacts that are never aggregated into clean
         # benchmark datasets.
-        cmake -DVIGIL_TRACE=ON ...
+        cmake -DAPP_TRACE=ON ...
         ;;
 esac
 ```
@@ -141,7 +142,7 @@ esac
 // The benchmark harness writes this into the result file
 // and refuses to upload if it disagrees with the binary.
 struct BenchResult {
-    std::string  binary_name;       // "vigil-bench-performance"
+    std::string  binary_name;       // "bench-performance"
     std::string  build_profile;     // "performance, no-trace"
     bool         telemetry_enabled; // false; checked at startup
     bool         diagnostic_mode;   // false
@@ -188,10 +189,10 @@ int main(int argc, char** argv) {
   rule is "label it"; the rule is not "never ship with
   telemetry on."
 - **Diagnostic runs are valuable evidence for behavior,
-  not throughput.** A diagnostic run that shows "the MTP
-  policy switched 87 times" is the right evidence for the
-  policy question; it is not the right evidence for the
-  throughput question.
+  not throughput.** A diagnostic run that shows "the
+  scheduling policy switched 87 times" is the right evidence
+  for the policy question; it is not the right evidence for
+  the throughput question.
 - **The benchmark dataset itself must remain pure.** Mixing
   diagnostic and clean runs in the same dataset poisons
   long-term trend analysis. Two separate datasets.
@@ -205,9 +206,11 @@ int main(int argc, char** argv) {
   <https://dev.epicgames.com/documentation/en-us/unreal-engine/csv-profiler>
 - Tracy Profiler — enabled-build acknowledgement —
   <https://github.com/wolfpld/tracy>
-- Vigil packet 142, *Unreal-Style Observability Boundary* —
-  build-profile fail-closed at the build script
-  (exit code 2 for `--performance --trace`).
+- Plainsight Systems internal engineering records (the **Vigil**
+  ML inference engine project) — build-profile fail-closed at
+  the build script (exit code 2 for `--performance --trace`).
+  Cited for technique provenance; documents are Plainsight-
+  private and not publicly available.
 - Brendan Gregg, *perf Examples* — sampling overhead
   estimates — <https://www.brendangregg.com/perf.html>
 - Cross-reference: `TLM.1` (compile-out is the

@@ -16,7 +16,8 @@
   labeling; sparse bookmarks for state changes; artifact-scan
   validation that clean builds carry no diagnostic symbols.
 - **Why the change is necessary:** Telemetry harnesses were a real
-  failure mode on the consuming side (Vigil): env-var-gated
+  failure mode on the consuming side (a Plainsight Systems
+  internal ML inference engine project): env-var-gated
   experimental behavior leaked into product paths, stderr "debug
   stats" polluted benchmarks, and diagnostic builds masqueraded as
   clean-throughput evidence. This is the No-Facades rule applied to
@@ -30,25 +31,31 @@
 - **Guaranteed invariants/contracts:** The corpus format (see
   `README.md`) and the MCP server's parser contract are unchanged.
   All content is original prose per the `CONTRIBUTING.md` sourcing
-  rule. Two Vigil documents are the seed material and will be cited
-  with full attribution; their text and code are not copied.
+  rule. Two seed documents (named in the Source material
+  section) provide initial provenance; they are Plainsight-
+  private and will be cited by reference only — never copied.
 
 ## Source material
 
-Two prior-art documents from the consuming project (`vigil`) seed the
-research and define the failure mode this category addresses:
+Two prior-art documents from a consuming Plainsight Systems
+project — the **Vigil** ML inference engine — seed the
+research and define the failure mode this category addresses.
+Both are Plainsight-internal engineering records, not publicly
+available. Named once here for full provenance; subsequent
+mentions in this packet and in the guidelines use generic
+terms ("the seed material", "an internal source").
 
-- `/Users/andyhunter/repositories/vigil/docs/research/packet133_game_engine_profiling_patterns.md`
-  — cross-engine survey (Unreal Stats, Unreal Insights Trace, Unreal
-  CSV Profiler, Unity ProfilerMarker, Godot Performance, Tracy).
+- *Game-engine profiling and debug patterns* — cross-engine
+  survey (Unreal Stats, Unreal Insights Trace, Unreal CSV
+  Profiler, Unity ProfilerMarker, Godot Performance, Tracy).
   Distilled cross-engine design rules.
-- `/Users/andyhunter/repositories/vigil/docs/decisions/packets/142-unreal-style-observability-boundary.md`
-  — Vigil's adoption packet that operationalised the rules: macro
-  front door, compile-gate inventory, artifact-scan validation,
-  observer-effect labeling.
+- *Unreal-style observability boundary* — the adoption
+  decision that operationalised the rules: macro front door,
+  compile-gate inventory, artifact-scan validation, observer-
+  effect labeling.
 
 An independent deep-dive research pass is also being commissioned to
-surface additional valid principles beyond what the two Vigil
+surface additional valid principles beyond what the two seed
 documents cover (Intel ITT, Optick, Microprofile, PIX, RAD
 Telemetry, Perfetto/Chrome trace event format, CTF / LTTng,
 eBPF/perf/DTrace user markers, OpenTelemetry C++, GPU/CPU
@@ -59,8 +66,8 @@ source discipline, frame markers, thread naming).
 
 - [x] A `telemetry` technique-extraction research note exists in
       `docs/research/`, classifying sources by the `CONTRIBUTING.md`
-      sourcing rule and integrating both the seed Vigil documents
-      and the independent deep-dive research pass.
+      sourcing rule and integrating both the seed documents and
+      the independent deep-dive research pass.
 - [x] The `telemetry` category is declared in `categories.toml`
       (key, token, display_name, order, description).
 - [x] New `telemetry` guidelines follow the `README.md` format and
@@ -87,7 +94,7 @@ source discipline, frame markers, thread naming).
 - 2026-05-20 — `categories.toml` updated with the ninth category;
   `guidelines/telemetry/` directory created.
 - 2026-05-20 — Independent deep-dive research pass commissioned to
-  extend beyond the Vigil seed documents.
+  extend beyond the seed documents.
 - 2026-05-20 — Research landed at
   `docs/research/2026-05-20-telemetry-techniques.md`. Slate
   expanded from 8 to 11 guidelines: 8 from the draft, plus TLM.9

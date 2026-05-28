@@ -66,8 +66,9 @@ channels, every capture is all-or-nothing.
 
 - **Define channels explicitly.** Name them. CPU, counters,
   memory, locks, frames, bookmarks, payloads — and any
-  domain-specific ones (Vigil's `decode`, `mtp`, `cache`,
-  `sampler`, `callback` from packet 133).
+  domain-specific ones (a representative example from an
+  inference engine: `decode`, `scheduler`, `cache`, `sampler`,
+  `callback`).
 - **Each channel has its own enable bit.** Compile-time or
   run-time, but separate. The runtime decides what to emit by
   checking the channel's bit, not a global "telemetry on" flag.
@@ -97,7 +98,7 @@ channels, every capture is all-or-nothing.
 ```cpp
 // Good: explicit channels with independent enable bits. The
 // runtime macro layer checks the per-channel bit before emit.
-namespace vigil::telemetry {
+namespace app::telemetry {
     enum Channel : std::uint32_t {
         kCpu      = 1u << 0,
         kCounters = 1u << 1,
@@ -114,32 +115,32 @@ namespace vigil::telemetry {
     }
 }
 
-#define VIGIL_CPU_ZONE(name)                                \
-    auto _z = vigil::telemetry::enabled(                    \
-                  vigil::telemetry::kCpu)                   \
-        ? vigil::telemetry::CpuZone{name} : vigil::telemetry::CpuZone{}
+#define APP_CPU_ZONE(name)                                \
+    auto _z = app::telemetry::enabled(                    \
+                  app::telemetry::kCpu)                   \
+        ? app::telemetry::CpuZone{name} : app::telemetry::CpuZone{}
 
-#define VIGIL_COUNTER(name, value)                           \
+#define APP_COUNTER(name, value)                           \
     do {                                                     \
-        if (vigil::telemetry::enabled(                       \
-                vigil::telemetry::kCounters))                \
-            vigil::telemetry::counter_emit(name, (value));   \
+        if (app::telemetry::enabled(                       \
+                app::telemetry::kCounters))                \
+            app::telemetry::counter_emit(name, (value));   \
     } while (0)
 
 void decode_loop(std::size_t n) noexcept {
-    VIGIL_CPU_ZONE("decode.loop");
+    APP_CPU_ZONE("decode.loop");
     for (std::size_t i = 0; i < n; ++i) {
         process_token(i);
     }
-    VIGIL_COUNTER("decode.tokens", n);
+    APP_COUNTER("decode.tokens", n);
 }
 
 // Frame boundary in a frame-less system: name the periodic unit.
 void run_inference_session() {
     while (auto request = next_request()) {
-        VIGIL_FRAME_BEGIN("inference.request");
+        APP_FRAME_BEGIN("inference.request");
         process(*request);
-        VIGIL_FRAME_END("inference.request");
+        APP_FRAME_END("inference.request");
     }
 }
 
@@ -201,8 +202,10 @@ void decode_loop_bad(std::size_t n) noexcept {
   <https://github.com/bombomby/optick>
 - Microprofile — CPU + GPU correlated timing with per-thread
   buffers — <https://github.com/jonasmr/microprofile>
-- Vigil packets 133 and 142 — the channelized model adopted
-  for an inference engine.
+- Plainsight Systems internal engineering records (the **Vigil**
+  ML inference engine project) — the channelized model adopted
+  for an inference engine. Cited for technique provenance;
+  documents are Plainsight-private and not publicly available.
 - Cross-reference: `TLM.1` (each channel inherits the
   compile-out gate), `TLM.7` (the bookmark channel
   specifically), `CONC.1` (false sharing of telemetry

@@ -116,7 +116,7 @@ to produce."
 // Good: compact binary record, fixed layout, version-tagged.
 // The hot path writes one record; the analyzer formats.
 #pragma pack(push, 1)
-struct VigilEventV1 {
+struct AppEventV1 {
     std::uint8_t  version;       // 1
     std::uint8_t  kind;          // 0=zone-begin, 1=zone-end, 2=counter
     std::uint16_t name_handle;   // interned-name index (TLM.3)
@@ -127,7 +127,7 @@ struct VigilEventV1 {
 
 void emit_event(EventKind kind, std::uint16_t name_handle,
                 std::uint64_t value) noexcept {
-    VigilEventV1 ev{
+    AppEventV1 ev{
         .version = 1,
         .kind = static_cast<std::uint8_t>(kind),
         .name_handle = name_handle,
