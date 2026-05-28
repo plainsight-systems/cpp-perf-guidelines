@@ -62,3 +62,10 @@ token = "SIMD"
 display_name = "SIMD & Vectorization"
 order = 8
 description = "Vectorization-friendly layout, intrinsics vs std::simd vs autovectorization, alignment for vector loads, gather/scatter, ISA targeting, and the last-resort drop to hand-written assembly."
+
+[[category]]
+key = "telemetry"
+token = "TLM"
+display_name = "Telemetry & Observability Harnesses"
+order = 9
+description = "Compile-out-by-default instrumentation, channelized events, macro front doors, observer-effect labeling, and the discipline of separating diagnostic builds from clean-throughput evidence."

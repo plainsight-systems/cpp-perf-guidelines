@@ -4,7 +4,8 @@ This file tracks active and accepted work.
 
 ## Active
 
-- None.
+- `2026-05-20-telemetry-category-buildout` — research and author the
+  ninth category, `telemetry`. (implementing)
 
 ## Ready
 
@@ -30,8 +31,8 @@ This file tracks active and accepted work.
   (GEN.1–GEN.8). Packet completed; pending maintainer review.
 - `2026-05-20-simd-category-buildout` — `simd` category built out
   (SIMD.1–SIMD.8). Packet completed; pending maintainer review. With
-  this packet, all eight categories of the corpus are populated
-  (66 guidelines total).
+  this packet, all eight original categories of the corpus are
+  populated (66 guidelines total).
 
 ## Parking Lot
 
