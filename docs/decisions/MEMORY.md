@@ -64,6 +64,12 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
   a correctness concern, gather as a trap, AVX-512 downclocking is
   historical, AVX-512 masks and SVE predication as the step change,
   the AMX → SME transition).
+- [`2026-06-02-gpu-optimization-techniques.md`](../research/2026-06-02-gpu-optimization-techniques.md)
+  — GPU and accelerator technique extraction (CUDA, Metal,
+  Vulkan/D3D12, Unreal RDG, Godot, Filament, AMD GPUOpen, Capcom
+  RE Engine, Naughty Dog; device residency, coalescing, occupancy,
+  divergence, shared/threadgroup memory, launch overhead, CPU/GPU
+  pipelining, barriers, transient GPU memory, and GPU profiling).
 
 ## Active Workflow Pointers
 

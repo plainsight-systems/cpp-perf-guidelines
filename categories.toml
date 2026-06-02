@@ -69,3 +69,10 @@ token = "TLM"
 display_name = "Telemetry & Observability Harnesses"
 order = 9
 description = "Compile-out-by-default instrumentation, channelized events, macro front doors, observer-effect labeling, and the discipline of separating diagnostic builds from clean-throughput evidence."
+
+[[category]]
+key = "gpu"
+token = "GPU"
+display_name = "GPU & Accelerator Optimization"
+order = 10
+description = "CUDA, Metal, Vulkan/D3D12 compute, GPU memory movement, coalesced access, occupancy, divergence, command submission, barriers, and CPU/GPU synchronization."

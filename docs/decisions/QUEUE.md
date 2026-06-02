@@ -32,8 +32,10 @@ This file tracks active and accepted work.
   (SIMD.1–SIMD.8). Packet completed; pending maintainer review.
 - `2026-05-20-telemetry-category-buildout` — `telemetry` category built
   out (TLM.1–TLM.11). Packet completed; pending maintainer review.
-  With this packet, all nine categories of the corpus are populated
-  (77 guidelines total).
+- `2026-06-02-gpu-category-buildout` — `gpu` category built out
+  (GPU.1–GPU.10). Packet completed; pending maintainer review.
+  With this packet, all ten categories of the corpus are populated
+  (87 guidelines total).
 
 ## Parking Lot
 
