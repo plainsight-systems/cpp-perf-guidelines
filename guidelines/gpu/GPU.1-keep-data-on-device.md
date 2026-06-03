@@ -25,6 +25,8 @@ The device boundary is therefore part of the algorithm, not an I/O detail.
 
 ## Guidance
 
+- Draw the ownership graph for the data. If the next three consumers are GPU
+  kernels/passes, the CPU should not see the intermediate form.
 - Keep intermediate buffers, reductions, visibility lists, particles, or ML
   activations on the device when later GPU work consumes them.
 - Move decisions onto the GPU when the CPU only needs the result to schedule
@@ -36,6 +38,9 @@ The device boundary is therefore part of the algorithm, not an I/O detail.
 - Treat CPU readback as a frame or step boundary. If it appears in the hot
   loop, record the expected latency, the queue/fence it waits on, and the
   measured cost.
+- Budget transfers as `bytes / measured_link_bandwidth + synchronization`.
+  The synchronization term is often the part that makes a scalar readback
+  expensive.
 - On unified-memory systems, do not assume the problem disappeared. Shared
   physical memory removes a discrete copy path, but cache migration, resource
   synchronization, and CPU/GPU ordering still have cost.
@@ -63,6 +68,19 @@ for (int step = 0; step != steps; ++step) {
 }
 ```
 
+```cpp
+// Review test: a scalar readback in a hot loop needs a written reason.
+// Acceptable: "once per frame, feeds the CPU frame scheduler, hidden behind
+// a two-frame readback ring." Suspicious: "used to decide the next kernel
+// in the same loop."
+struct ReadbackBudget {
+    std::size_t bytes;
+    double measured_transfer_us;
+    double measured_wait_us;
+    int frames_delayed;
+};
+```
+
 ## Caveats
 
 - Device-side control is not free. If the branch is rare, the GPU-side
@@ -71,6 +89,8 @@ for (int step = 0; step != steps; ++step) {
   round trips inside the performance-critical loop.
 - Unified-memory APIs can hide copies until a page fault or synchronization
   point. Profile migrations instead of assuming "no memcpy" means no cost.
+- Error handling and validation may require CPU visibility. Keep that path out
+  of the throughput measurement or label it as diagnostic.
 
 ## References
 

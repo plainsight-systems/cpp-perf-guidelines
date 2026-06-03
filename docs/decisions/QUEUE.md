@@ -36,6 +36,9 @@ This file tracks active and accepted work.
   (GPU.1–GPU.10). Packet completed; pending maintainer review.
   With this packet, all ten categories of the corpus are populated
   (87 guidelines total).
+- `2026-06-02-gpu-guideline-sharpening` — `gpu` category revised after
+  maintainer review to make the guidance more concrete and technique-level.
+  Packet completed; pending maintainer review.
 
 ## Parking Lot
 

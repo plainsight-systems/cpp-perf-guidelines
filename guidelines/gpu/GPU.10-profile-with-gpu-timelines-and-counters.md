@@ -42,6 +42,12 @@ right tool:
 - Do not use debug builds, validation-heavy captures, shader printf, or
   diagnostic instrumentation as throughput evidence unless the overhead is the
   thing being measured.
+- Map symptom to counter family before changing code:
+  queue gaps -> timeline/submission; many sectors per request -> coalescing;
+  low achieved occupancy with a VGPR/register limiter -> register pressure;
+  high LDS/shared-memory conflicts -> bank/indexing; high barrier/wait stalls
+  -> synchronization; inactive lanes or low branch efficiency -> divergence;
+  high API/launch time -> batching, graphs, or fusion.
 
 ## Example
 
@@ -56,6 +62,26 @@ void dispatch_cull(CommandList& cmd, Buffer visible, Buffer meshlets) {
     cmd.dispatch(indirect_or_grid_size(meshlets));
     cmd.end_marker();
 }
+```
+
+```text
+If the profiler says...
+
+GPU idle between dispatches:
+    Look at CPU submission, launch overhead, queue dependencies, command-buffer
+    reuse, CUDA Graphs, and render-graph batching. Do not tune shader ALU yet.
+
+Kernel has poor memory throughput and many transactions per request:
+    Review lane addresses (`GPU.2`), alignment, data layout, and shared-memory
+    tiling. Do not chase occupancy first.
+
+Kernel is memory-latency stalled and occupancy is limited by registers/LDS:
+    Try a version with lower live state or smaller tiles (`GPU.3`, `GPU.5`),
+    then check for spills and end-to-end time.
+
+Frame has long waits or all-pipe stalls:
+    Inspect barriers, queue waits, readbacks, and frame-resource reuse
+    (`GPU.7`, `GPU.8`). Do not infer this from CPU timers alone.
 ```
 
 ## Caveats

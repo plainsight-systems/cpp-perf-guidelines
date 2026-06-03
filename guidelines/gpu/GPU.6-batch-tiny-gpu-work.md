@@ -19,6 +19,11 @@ long chain of tiny GPU operations, optimizing a single kernel body may not
 move the needle. The CPU is spending too much time describing work the GPU
 finishes quickly.
 
+The smell is visible in a timeline: the GPU runs a short dispatch, then waits
+while the CPU/runtime submits the next one, then runs another short dispatch.
+The fix is not a faster multiply in the kernel; it is fewer submissions or a
+captured submission graph.
+
 ## Guidance
 
 - Use CUDA Graphs for repeated sequences of kernels, copies, and events with
@@ -34,6 +39,8 @@ finishes quickly.
   aesthetic separation.
 - Record whether a workload is launch-bound. Future readers need to know why
   a larger kernel or graph exists.
+- Keep graph/update boundaries explicit. A graph that is constantly rebuilt
+  has turned launch overhead into graph-management overhead.
 
 ## Example
 
@@ -63,6 +70,23 @@ for (int step = 0; step != steps; ++step) {
 }
 ```
 
+```text
+Timeline review:
+
+Before:
+    CPU launch normalize -> GPU 8 us
+    CPU launch score     -> GPU 6 us
+    CPU launch threshold -> GPU 4 us
+    CPU launch compact   -> GPU 7 us
+
+After:
+    CPU graph launch     -> GPU runs the captured chain
+
+If the before trace has visible CPU gaps between dispatches, batching can be
+the optimization. If the GPU is continuously busy inside one long kernel,
+CUDA Graphs will not fix the bottleneck.
+```
+
 ## Caveats
 
 - Fusion can reduce launch overhead while making the kernel slower through
@@ -71,6 +95,8 @@ for (int step = 0; step != steps; ++step) {
   not one-off dynamic work.
 - Render graphs and command buffers do not remove GPU work; they reduce
   CPU-side orchestration and expose optimization opportunities.
+- Fusion is a semantic change to scheduling and lifetime. It can make
+  profiling harder; keep debug markers or internal phases when possible.
 
 ## References
 

@@ -26,37 +26,47 @@ hardware is idle.
   slots, and staging memory.
 - Use fences/events to wait for a specific resource lifetime, not for the
   entire device or queue.
-- In CUDA, use streams and events to express overlap between copies and
-  kernels. Pair this with pinned host memory for asynchronous transfers.
+- In CUDA, overlap requires all three preconditions: hardware that supports
+  concurrent copy/execute, pinned host memory, and copies/kernels in different
+  non-default streams.
 - In graphics APIs, keep command recording, copy, compute, and graphics work
   ordered by explicit dependencies rather than global waits.
 - Delay readback consumption by one or more frames/steps when exact same-frame
   CPU visibility is not required.
+- Use rings for upload/readback resources. Reusing one staging buffer every
+  frame is a hidden fence.
 - Profile the timeline. A pipeline design is only real if the trace shows
   overlap and bounded in-flight memory.
 
 ## Example
 
 ```cpp
-struct ReadbackSlot {
-    Buffer buffer;
-    Fence fence;
+struct Chunk {
+    float* host_in;       // pinned/page-locked host memory
+    float* host_out;      // pinned/page-locked host memory
+    float* dev_in;
+    float* dev_out;
+    cudaStream_t copy_stream;
+    cudaStream_t compute_stream;
+    cudaEvent_t copied_to_device;
+    cudaEvent_t compute_done;
 };
 
-std::array<ReadbackSlot, 3> readbacks;
+// Good CUDA shape: stage chunks so H2D copy for chunk N+1 overlaps compute
+// for chunk N. The event is the narrow dependency; no device-wide sync.
+void submit_chunk(Chunk& c, std::size_t bytes, int n) {
+    cudaMemcpyAsync(c.dev_in, c.host_in, bytes, cudaMemcpyHostToDevice,
+                    c.copy_stream);
+    cudaEventRecord(c.copied_to_device, c.copy_stream);
 
-void submit_frame(std::uint64_t frame_index) {
-    ReadbackSlot& write_slot = readbacks[frame_index % readbacks.size()];
+    cudaStreamWaitEvent(c.compute_stream, c.copied_to_device, 0);
+    kernel<<<grid_for(n), block_size, 0, c.compute_stream>>>(c.dev_out,
+                                                             c.dev_in, n);
+    cudaEventRecord(c.compute_done, c.compute_stream);
 
-    // GPU writes this frame's result and signals only this slot's fence.
-    encode_gpu_work(write_slot.buffer);
-    signal_fence(write_slot.fence, frame_index);
-
-    // CPU consumes an older slot if it is ready. No device-wide wait.
-    ReadbackSlot& read_slot = readbacks[(frame_index + 1) % readbacks.size()];
-    if (is_fence_complete(read_slot.fence, frame_index - 2)) {
-        consume_readback(read_slot.buffer);
-    }
+    cudaStreamWaitEvent(c.copy_stream, c.compute_done, 0);
+    cudaMemcpyAsync(c.host_out, c.dev_out, bytes, cudaMemcpyDeviceToHost,
+                    c.copy_stream);
 }
 ```
 
@@ -68,6 +78,8 @@ void submit_frame(std::uint64_t frame_index) {
 - Async copy/compute overlap depends on hardware engines, resource
   dependencies, and transfer size. Streams or queues alone do not guarantee
   overlap.
+- CUDA's legacy default stream synchronizes with other streams unless the
+  application opts into per-thread default stream behavior. Be explicit.
 
 ## References
 
@@ -79,5 +91,7 @@ void submit_frame(std::uint64_t frame_index) {
   <https://developer.apple.com/documentation/metal/resource-synchronization>
 - NVIDIA, CUDA C++ Best Practices Guide -
   <https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/>
+- NVIDIA, How to Overlap Data Transfers in CUDA C/C++ -
+  <https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/>
 - Cross-reference: `MEM.4` (double buffering), `TLM.11` (CPU/GPU
   timestamp correlation), `GPU.1` (device residency).

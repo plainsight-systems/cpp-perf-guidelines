@@ -21,6 +21,11 @@ and readback staging. Many of these lifetimes do not overlap. A render graph
 or frame allocator can alias them onto the same physical memory when the
 dependencies prove it is safe.
 
+This is the GPU version of arena allocation with a stricter proof obligation:
+the allocator is allowed to reuse bytes only after the graph proves the old
+resource has no future users and the necessary barriers/transitions make the
+new use legal.
+
 ## Guidance
 
 - Allocate large GPU heaps or pools and suballocate resources from them.
@@ -34,15 +39,23 @@ dependencies prove it is safe.
   barriers/transitions when memory changes role.
 - Track high-water marks, fragmentation, aliasing savings, and residency
   failures in telemetry.
+- In Vulkan/D3D12, distinguish committed/dedicated resources from placed or
+  suballocated resources. Use dedicated allocations only when the resource
+  size, alignment, residency, or API requirement justifies it.
+- In CUDA pipelines, prefer stream-ordered/pool allocation for dynamic device
+  temporaries instead of `cudaMalloc`/`cudaFree` in the hot loop.
 
 ## Example
 
 ```cpp
+constexpr std::size_t MiB = 1024 * 1024;
+
 struct TransientResource {
     std::size_t size;
     std::size_t align;
     int first_pass;
     int last_pass;
+    bool needs_clear_before_read;
 };
 
 // Sketch: a graph allocator can reuse memory when lifetimes do not overlap.
@@ -53,9 +66,17 @@ constexpr bool can_alias(const TransientResource& a,
 
 // Shadows and bloom_temp can occupy the same heap range if the graph proves
 // the bloom pass starts after all shadow consumers are complete.
-constexpr TransientResource shadows{64 * MiB, 64 * KiB, 1, 4};
-constexpr TransientResource bloom_temp{64 * MiB, 64 * KiB, 8, 10};
+constexpr TransientResource shadows{64 * MiB, 64 * KiB, 1, 4, true};
+constexpr TransientResource bloom_temp{64 * MiB, 64 * KiB, 8, 10, true};
 static_assert(can_alias(shadows, bloom_temp));
+
+// Runtime graph allocation still records the proof, not just the offset.
+struct Placement {
+    std::size_t heap_offset;
+    int lifetime_begin;
+    int lifetime_end;
+    const char* debug_name;
+};
 ```
 
 ## Caveats
@@ -67,6 +88,8 @@ static_assert(can_alias(shadows, bloom_temp));
 - Small projects can start with a simpler pool. The rule is to avoid
   unbounded per-frame device allocation, not to build a full render graph on
   day one.
+- Aliasing can hide temporal bugs. In debug builds, consider poisoning or
+  clearing aliased ranges to catch consumers that outlive their graph pass.
 
 ## References
 

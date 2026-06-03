@@ -18,11 +18,18 @@ The branch itself is not the problem. Uniform branches, where every lane takes
 the same path, are cheap. The expensive case is per-lane divergence in hot
 code, especially when each path performs memory access or long arithmetic.
 
+A useful review question: does the branch condition vary by dispatch/pass, by
+threadgroup, or by lane? Dispatch- and threadgroup-uniform decisions are
+usually fine. Lane-varying decisions inside a hot warp/wave are the expensive
+case.
+
 ## Guidance
 
 - Sort, bin, compact, or dispatch separately so neighboring lanes process the
   same material, operation, particle state, ray state, or object type.
 - Hoist uniform decisions out of the kernel/shader variant when possible.
+- Split a mixed kernel into coherent kernels when each branch body is large
+  enough that launch/compaction overhead is not the limiter.
 - Use predication for tiny branches only when the extra work is cheaper than
   divergent control flow.
 - Avoid divergent reads from constant/uniform buffers. If each lane indexes a
@@ -32,6 +39,9 @@ code, especially when each path performs memory access or long arithmetic.
   material, shader, ray depth, tile, or spatial cluster.
 - Measure branch efficiency, inactive lanes, or equivalent profiler counters
   before and after a restructuring pass.
+- Keep tail handling separate from the hot body when possible. A cleanup
+  dispatch or scalar tail can be cheaper than making every lane carry edge
+  conditions through the main kernel.
 
 ## Example
 
@@ -56,6 +66,27 @@ __global__ void update_particles_mixed(Particle* p, int n) {
 update_colliding<<<grid_a, block>>>(particles, colliding_indices, colliding_n);
 update_sleeping<<<grid_b, block>>>(particles, sleeping_indices, sleeping_n);
 update_live<<<grid_c, block>>>(particles, live_indices, live_n);
+```
+
+```cpp
+// Also good: make the decision dispatch-uniform. The branch remains, but all
+// lanes in the dispatch take the same path.
+enum class ParticlePass { integrate, collide, sleep };
+
+template<ParticlePass pass>
+__global__ void update_particles_pass(Particle* p, const int* indices, int n) {
+    int lane = blockIdx.x * blockDim.x + threadIdx.x;
+    if (lane >= n) return;
+
+    Particle& particle = p[indices[lane]];
+    if constexpr (pass == ParticlePass::collide) {
+        solve_collision(particle);
+    } else if constexpr (pass == ParticlePass::sleep) {
+        decay_sleep_timer(particle);
+    } else {
+        integrate(particle);
+    }
+}
 ```
 
 ## Caveats

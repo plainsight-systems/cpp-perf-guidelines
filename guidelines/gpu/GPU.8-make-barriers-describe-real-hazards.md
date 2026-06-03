@@ -20,11 +20,18 @@ stages, all access, every time. That can hide hazards during development while
 destroying the scheduler's ability to overlap graphics, compute, copy, and
 independent passes.
 
+Treat GPU barriers like memory-order edges in CPU code. `AllCommands ->
+AllCommands` is the GPU equivalent of reaching for the strongest ordering
+because the real dependency was not identified. Sometimes that is necessary;
+as a default it serializes work that could have overlapped.
+
 ## Guidance
 
 - For every barrier, identify the resource, producer pass, consumer pass,
   previous access, next access, and pipeline stages involved.
 - Use the narrowest stage and access masks that express the hazard.
+- Separate memory hazards from queue ownership and layout/state transitions.
+  They often travel together in examples, but they answer different questions.
 - Prefer split barriers or events when they allow independent work to run
   between release and acquire.
 - Avoid device-wide or queue-wide idle calls in frame loops.
@@ -36,22 +43,28 @@ independent passes.
 ## Example
 
 ```cpp
-// Bad shape: "something changed, block everything."
-Barrier too_broad{
-    .src_stage = Stage::AllCommands,
-    .src_access = Access::All,
-    .dst_stage = Stage::AllCommands,
-    .dst_access = Access::All,
-    .resource = texture,
+// Bad Vulkan shape: "compute wrote something, block the whole pipe."
+VkMemoryBarrier2 too_broad{
+    .sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2,
+    .srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+    .srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT,
+    .dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+    .dstAccessMask = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT,
 };
 
-// Better shape: compute wrote an image; the fragment shader samples it next.
-Barrier precise{
-    .src_stage = Stage::ComputeShader,
-    .src_access = Access::ShaderWrite,
-    .dst_stage = Stage::FragmentShader,
-    .dst_access = Access::ShaderRead,
-    .resource = texture,
+// Better shape: a compute shader wrote a storage image; the next pass samples
+// it in the fragment shader. Unrelated vertex work, copies, and other compute
+// can remain eligible to overlap.
+VkImageMemoryBarrier2 precise{
+    .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+    .srcStageMask = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT,
+    .srcAccessMask = VK_ACCESS_2_SHADER_WRITE_BIT,
+    .dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT,
+    .dstAccessMask = VK_ACCESS_2_SHADER_SAMPLED_READ_BIT,
+    .oldLayout = VK_IMAGE_LAYOUT_GENERAL,
+    .newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+    .image = texture,
+    .subresourceRange = color_mips_and_layers,
 };
 ```
 
@@ -69,8 +82,8 @@ Barrier precise{
   <https://docs.vulkan.org/samples/latest/samples/performance/pipeline_barriers/README.html>
 - Khronos, Vulkan synchronization spec -
   <https://docs.vulkan.org/spec/latest/chapters/synchronization.html>
-- Microsoft DirectXTK12, Resource Barriers -
-  <https://github.com/microsoft/DirectXTK12/wiki/Resource-Barriers>
+- Microsoft, D3D12 resource barriers -
+  <https://learn.microsoft.com/en-us/windows/win32/direct3d12/using-resource-barriers-to-synchronize-resource-states-in-direct3d-12>
 - Unreal Engine, Render Dependency Graph -
   <https://dev.epicgames.com/documentation/en-us/unreal-engine/render-dependency-graph-in-unreal-engine>
 - Cross-reference: `GPU.7` (CPU/GPU pipelining), `TLM.11` (correlated GPU

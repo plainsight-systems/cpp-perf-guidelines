@@ -19,6 +19,13 @@ once and reused many times, or global memory is read/written coalesced and
 then rearranged locally. It is not automatically faster than registers,
 read-only caches, texture paths, or a simple coalesced global load.
 
+The classic trap is fixing one memory problem and creating another. A tiled
+transpose can use shared memory to make global reads and writes coalesced, but
+the shared tile itself is banked. If every lane in a warp hits the same bank
+pattern, the on-chip access serializes. Padding the shared tile by one column
+often breaks the conflict. The important part is not the magic `+ 1`; it is
+knowing that shared memory has a banking model that must be profiled.
+
 ## Guidance
 
 - Use shared/threadgroup memory for tiled reuse: matrix blocks, stencils,
@@ -33,32 +40,39 @@ read-only caches, texture paths, or a simple coalesced global load.
   show local-memory serialization.
 - Prefer warp/wave/SIMD-group shuffle operations for within-group reductions
   when the data never needs full threadgroup visibility.
+- Prefer asynchronous global-to-shared copy paths when the platform provides
+  them and the tile pipeline has enough work to overlap the copy.
 
 ## Example
 
 ```cpp
-// Sketch: a tiled stencil. The block cooperatively loads a tile plus halo,
-// synchronizes once, then each thread reuses neighboring values from shared
-// memory instead of issuing several global loads.
-__global__ void stencil_1d(float* out, const float* in, int n) {
-    extern __shared__ float tile[];
+constexpr int tile_dim = 32;
 
-    int local = threadIdx.x;
-    int global = blockIdx.x * blockDim.x + local;
-    int shared_i = local + 1;
+__global__ void transpose_tiled(float* out, const float* in,
+                                int width, int height) {
+    // Bad shape for a transposed read would be:
+    //     __shared__ float tile[tile_dim][tile_dim];
+    // because many lanes can hit the same bank when reading tile[x][y].
+    //
+    // Better: the extra column changes the bank mapping for transposed reads.
+    // The exact padding rule is hardware-specific; profile local-memory
+    // conflict counters rather than cargo-culting this into every kernel.
+    __shared__ float tile[tile_dim][tile_dim + 1];
 
-    if (global < n) tile[shared_i] = in[global];
-    if (local == 0 && global > 0) tile[0] = in[global - 1];
-    if (local == blockDim.x - 1 && global + 1 < n) {
-        tile[shared_i + 1] = in[global + 1];
+    int x = blockIdx.x * tile_dim + threadIdx.x;
+    int y = blockIdx.y * tile_dim + threadIdx.y;
+
+    if (x < width && y < height) {
+        tile[threadIdx.y][threadIdx.x] = in[y * width + x];
     }
 
     __syncthreads();
 
-    if (global > 0 && global + 1 < n) {
-        out[global] = 0.25f * tile[shared_i - 1]
-                    + 0.50f * tile[shared_i]
-                    + 0.25f * tile[shared_i + 1];
+    x = blockIdx.y * tile_dim + threadIdx.x;
+    y = blockIdx.x * tile_dim + threadIdx.y;
+
+    if (x < height && y < width) {
+        out[y * height + x] = tile[threadIdx.x][threadIdx.y];
     }
 }
 ```
@@ -71,6 +85,8 @@ __global__ void stencil_1d(float* out, const float* in, int n) {
   store pattern still matters.
 - Bank-conflict rules differ by vendor and generation. Treat padding folklore
   as a hypothesis to profile.
+- A shared-memory tile can reduce memory traffic and still lose if it lowers
+  occupancy below what the kernel needs to hide latency.
 
 ## References
 

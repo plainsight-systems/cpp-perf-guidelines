@@ -238,7 +238,50 @@ than round-tripping to the CPU.
   graph-owned heaps.
 - `GPU.10` - Profile with GPU timelines and counters before optimizing.
 
-## 5. Source index
+## 5. Sharpening pass - 2026-06-02
+
+Maintainer review of the first GPU pass: the category had the right outline,
+but the guidance was less valuable than the established CPU-side categories
+because it stopped too often at "use the right profiler" or "avoid
+round-trips." The revision pass extracts more concrete mechanics:
+
+- **Coalescing needs a transaction model.** NVIDIA's current best-practices
+  guide summarizes compute capability 6.0+ global-memory coalescing as the
+  number of 32-byte transactions needed to serve the warp. That gives a
+  usable review question: for this instruction, how many 32-byte sectors does
+  a warp touch? Stride-1 `float` loads are four sectors for 32 lanes; stride-8
+  can turn the same useful 128 bytes into many more sectors. This is the
+  missing concrete lever in `GPU.2`.
+- **Occupancy needs named limiters.** AMD's occupancy article splits
+  practical limiters into VGPR pressure, LDS, threadgroup size, barriers, and
+  lack of enough waves. NVIDIA exposes the same resource logic through the
+  CUDA occupancy APIs and Nsight Compute: registers per thread, shared memory
+  per block, blocks per SM, and achieved occupancy. `GPU.3` should make those
+  limiters explicit instead of presenting occupancy as a profiler vibe.
+- **Shared memory needs bank-conflict examples.** NVIDIA and AMD both document
+  banked on-chip memory. The classic valuable example is tiled transpose:
+  shared memory coalesces global loads/stores, but a `[tile][tile]` layout can
+  create bank conflicts; padding the second dimension (`tile + 1`) breaks the
+  conflict. This is more useful than a generic stencil in `GPU.5`.
+- **Overlap requires exact preconditions.** CUDA overlap is not "use streams."
+  It requires concurrent-copy hardware, pinned host memory, and operations in
+  different non-default streams. Vulkan/D3D12/Metal equivalents require
+  queue/engine capability, separate in-flight resources, and fences/events
+  narrow enough not to drain the device. `GPU.7` should name those
+  preconditions.
+- **Barriers should be reviewed like memory-order edges.** The useful
+  question is "what wrote, what reads, which stage/access pair connects
+  them?" A generic all-stage barrier example is less valuable than showing a
+  compute-shader-write to fragment-shader-read edge and calling out
+  wait-idle as the synchronization equivalent of `seq_cst` everywhere.
+- **Profiling should map symptom to counter family.** The stronger
+  `GPU.10` form is a decision table: queue gaps -> timeline; high memory
+  sectors/request -> coalescing; low achieved occupancy + VGPR limiter ->
+  register pressure; high barrier/wait stalls -> synchronization; low branch
+  efficiency/inactive lanes -> divergence; high launch/API time -> batching
+  or graphs.
+
+## 6. Source index
 
 - NVIDIA, CUDA C++ Programming Guide -
   <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
