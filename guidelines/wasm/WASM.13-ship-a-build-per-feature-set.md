@@ -21,8 +21,9 @@ equivalent is to **compile a variant per feature set and choose between them in
 JavaScript before instantiating**, which makes feature support a build-and-deploy
 concern rather than a runtime branch.
 
-The variants are not free. Each is a separate URL and therefore a separate code
-cache entry (`WASM.7`), each doubles the build matrix, and each must be tested.
+The variants are not free. Each is a separate URL, so each warms its own code
+cache entry independently (`WASM.7`) — a returning user who switches variants
+pays a cold compile. Each also doubles the build matrix, and each must be tested.
 So the right number of variants is small and deliberate — usually two.
 
 ## Guidance
@@ -38,8 +39,8 @@ So the right number of variants is small and deliberate — usually two.
   come from the same translation units, differing only in flags.
 - **Make the baseline the default.** If detection fails or is inconclusive, load
   the variant that runs everywhere.
-- **Version variants by path.** Each is its own cache entry; a query string
-  discards the cache for all of them.
+- **Give each variant a stable, immutable URL.** They warm their caches
+  separately, so a URL that churns on every deploy costs each variant its entry.
 - **Test the baseline path deliberately.** It is the one nobody runs during
   development, and therefore the one that breaks.
 - **Check current support rather than hardcoding a matrix.**
@@ -84,6 +85,7 @@ extern "C" const char* build_variant() noexcept {
 //   emcc ... -o dist/app.baseline.v7.wasm
 //   emcc ... -msimd128 -o dist/app.simd.v7.wasm
 //
+// Stable URLs, so each variant keeps its own warm cache entry across visits.
 // Selection happens in JavaScript, before instantiation, because by the time
 // C++ runs the decision has already been made:
 //
@@ -109,6 +111,7 @@ struct BuildMatrix {
     const char* variant;          // "baseline", "simd128"
     const char* artifact_path;    // path-versioned, one cache entry each
     bool covered_by_tests;        // the baseline row is the one that lapses
+    // Each row warms its code cache independently; see WASM.7.
 };
 ```
 

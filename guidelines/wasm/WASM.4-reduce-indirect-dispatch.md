@@ -9,17 +9,23 @@ tags = ["indirect-call", "virtual-dispatch", "function-pointers", "i-cache", "de
 
 ## Rationale
 
-WebAssembly dynamically checks **every indirect call**: that the target index is
-a valid entry in the function table, and that the callee's runtime type matches
-the type at the call site. In C++ that means every virtual call and every call
-through a function pointer or `std::function`. There is also a stack-overflow
-check emitted at the entry of every function.
+WebAssembly *semantically* requires that every indirect call be checked: that
+the target index is a valid entry in the function table, and that the callee's
+runtime type matches the type at the call site. In C++ that means every virtual
+call and every call through a function pointer or `std::function`.
 
-These are not toolchain immaturity. Jangda et al. measured SPEC CPU under
-Browsix-Wasm and classified them, along with the engines' reserved registers
-(Chrome reserves `r13`, `r10` and `xmm13`; Firefox reserves `r15`, `r11` and
-`xmm15`), as consequences of WebAssembly's safety design rather than of any
-particular compiler.
+How much of that survives into optimised machine code is an engine decision, and
+the distinction matters. Jangda et al. measured Chrome and Firefox as they were
+in 2019 and found the checks present in generated code, along with a
+stack-overflow check at each function entry and reserved registers (Chrome held
+`r13`, `r10` and `xmm13`; Firefox held `r15`, `r11` and `xmm15`). They
+classified these as consequences of WebAssembly's safety design rather than of
+any one compiler — but WebAssembly does not mandate a particular lowering, and
+engines have since narrowed the gap. V8 now speculatively inlines
+`call_indirect` with deoptimization support.
+
+Treat the numbers below as a measured lower bound on what indirection can cost,
+not as a permanent property of the platform.
 
 The measured effect is mostly *code size*, and code size is where it hurts:
 instructions retired rose 1.75–1.80× over native, and **L1 instruction-cache
@@ -93,9 +99,12 @@ private:
     std::vector<Sprite> sprites_;
 };
 
-// When polymorphism is genuinely required, close the set. A variant visit
-// lowers to a jump table or a direct call chain -- no function-table lookup,
-// no runtime signature check.
+// When polymorphism is genuinely required, close the set. A closed set gives
+// the compiler the option of a direct call or a jump table rather than an
+// indirect call through the function table. That is an opportunity, not a
+// guarantee -- std::visit's lowering is implementation-defined, and some
+// implementations use a dispatch table of their own. Inspect the output before
+// claiming the win.
 using AnyComponent = std::variant<Physics, Sprite>;
 
 struct StepVisitor {
@@ -106,7 +115,7 @@ struct StepVisitor {
 
 void update_all(std::span<AnyComponent> components, float dt) noexcept {
     for (AnyComponent& c : components) {
-        std::visit(StepVisitor{dt}, c);   // jump table, not a table lookup
+        std::visit(StepVisitor{dt}, c);   // inspect the lowering; do not assume
     }
 }
 
@@ -134,7 +143,9 @@ public:
   frequency. Do not flatten a design that is not in a loop.
 - **The measurements are from 2019 and engines have improved.** V8 shipped
   speculative `call_indirect` inlining with deoptimization support in Chrome
-  M137. The checks remain; their cost is being reduced.
+  M137. The semantic requirement remains; how much of it costs anything at
+  runtime is engine- and version-specific, so re-measure rather than citing
+  these figures as current. (Checked 2026-09-05.)
 - **Devirtualisation can enlarge code.** Inlining several implementations into
   one loop trades indirect calls for i-cache footprint — the very resource this
   guideline is protecting. Measure both sides.

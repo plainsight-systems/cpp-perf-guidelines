@@ -71,6 +71,9 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
   divergence, shared/threadgroup memory, launch overhead, CPU/GPU
   pipelining, barriers, transient GPU memory, and GPU profiling).
 
+- [`2026-09-05-wasm-category-buildout-codex-review.md`](../research/2026-09-05-wasm-category-buildout-codex-review.md)
+  — independent review of the `wasm` category (outcome: changes_requested;
+  all findings worked under the remediation packet).
 - [`2026-09-05-wasm-techniques.md`](../research/2026-09-05-wasm-techniques.md)
   — WebAssembly technique extraction (browser-JIT vs AoT slowdown figures,
   the safety checks behind indirect-call cost, contiguous linear memory and
@@ -89,6 +92,13 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
   while building the `wasm` category, after an internal harness's conclusion
   about WebGPU limit negotiation was found to contradict the platform's own
   guidance.
+
+- **Corpus examples are verified by compilation, not by reading.** Independent
+  review catches wrong *claims* well and wrong *code* poorly — it read the
+  examples by eye and reported the toolchain as unavailable when it was not.
+  Compiling and running an example found defects review did not: a destroyed
+  alpha channel in a SIMD kernel, and undefined behavior in a planner whose
+  whole subject was careful planning. Recorded 2026-09-05.
 
 ## Active Workflow Pointers
 

@@ -19,30 +19,35 @@ asm.js to WebAssembly cut load time roughly **3×**, from about 12 s to under
 4 s on large documents, attributed to the compactness of the binary format,
 parsing that is around 20× faster, and compiled code the browser can cache.
 
-That cache has strict and easily-broken preconditions. In V8 it applies **only**
-to the streaming APIs, **only** to modules of 128 kB or more, and **only** from
-the second load onward. It is invalidated by a changed module, by a V8 update
-(roughly every six weeks on Chrome's release cadence), and by **any URL change,
-including query parameters** — so a cache-busting query string defeats code
-caching outright while appearing to be good hygiene.
+That cache has preconditions, and they are easy to break. V8 applies it **only**
+to the streaming APIs and **only** from the second load onward; the module must
+also clear a size threshold, published as 128 kB in V8's 2019 write-up. Treat
+the specific number as a dated implementation note rather than a platform
+contract — it is not specified anywhere, and no engine guarantees it. The cache
+is invalidated by a changed module, by a V8 update (roughly every six weeks on
+Chrome's release cadence), and by a changed URL. Query parameters are part of
+the URL, so a *cache-busting* query string discards the entry on every deploy —
+but a stable URL caches perfectly well whether or not it carries a query.
 
-Compilation is also tiered. V8 compiles the whole module eagerly with Liftoff
-(about 5× faster to compile, about 1.5× slower to execute) and replaces hot
-functions with TurboFan output in the background. Early loop iterations
-therefore measure baseline code, not the code that will run in steady state.
+Compilation is also tiered, and it is **lazy**: V8's own documentation states
+that functions are compiled with Liftoff when first called, not eagerly across
+the module, and that functions crossing a call-count threshold are recompiled by
+TurboFan on a background thread. Early iterations therefore measure baseline
+code, not the code that will run in steady state. (Checked 2026-09-05.)
 
 ## Guidance
 
-- **Instantiate by streaming.** Use `WebAssembly.instantiateStreaming`, and serve
-  the module with `Content-Type: application/wasm` or the browser falls back to
-  the non-streaming path.
+- **Instantiate by streaming, and serve `Content-Type: application/wasm`.** The
+  native API requires that MIME type and **rejects the promise** without it — it
+  does not quietly fall back. A generated loader may catch the rejection and
+  retry non-streaming; that is the loader's behavior, not the platform's, so
+  know which one you are relying on.
 - **Preload the module** with `<link rel="preload" as="fetch" crossorigin>` so
   the fetch starts before the script that needs it is parsed.
-- **Version by path, not by query string.** `app.v7.wasm` keeps the code cache;
-  `app.wasm?v=7` discards it.
-- **Keep the module above the cache threshold if it is near it.** A module just
-  under 128 kB recompiles on every load; merging it with its dependencies may be
-  cheaper overall than keeping it small.
+- **Serve modules from immutable, stable URLs.** A URL that changes every deploy
+  discards its cache entry; one that does not, keeps it. Path versioning
+  (`app.v7.wasm`) achieves that naturally, but a stable query string is not
+  itself a problem — churn is.
 - **Consider a service worker for the second-load path.** Photoshop reports a
   **75%** reduction in code initialization time by precaching JS and WASM with
   Workbox alongside V8's own caching.
@@ -109,11 +114,20 @@ BenchResult measure(Fn&& fn, std::size_t warmup, std::size_t iterations) {
         samples.push_back(clock_ms() - start);
     }
 
+    // Precondition, not an assumption: indexing an empty vector is undefined
+    // (SL.con.3), and a zero-iteration benchmark has no result to report.
+    if (samples.empty()) {
+        return BenchResult{warmup, 0, 0.0, 0.0};
+    }
+
     std::sort(samples.begin(), samples.end());
+    const std::size_t p95_index =
+        std::min(samples.size() - 1,
+                 static_cast<std::size_t>(samples.size() * 0.95));
     return BenchResult{
         warmup, iterations,
         samples[samples.size() / 2],
-        samples[static_cast<std::size_t>(samples.size() * 0.95)],
+        samples[p95_index],
     };
 }
 
@@ -130,20 +144,22 @@ BenchResult measure(Fn&& fn, std::size_t warmup, std::size_t iterations) {
 
 ## Caveats
 
-- **Code caching is engine-specific.** The 128 kB threshold and second-load
-  behaviour are V8's. Other engines cache on different terms, and none of it is
-  specified.
+- **Code caching is engine-specific and unspecified.** The size threshold and
+  second-load behaviour are V8's, published in 2019. Other engines cache on
+  different terms. Nothing here is a platform contract, so measure your own
+  cold- and warm-load costs rather than designing to a number.
 - **Cache invalidation on browser update is unavoidable.** A user on a
   six-weekly Chrome cadence pays a cold compile periodically no matter what you
   do; budget for the cold path, do not assume the warm one.
 - **Warm-up length is not portable.** Tuning the iteration count against V8's
   curve does not make it correct on JavaScriptCore, which has three tiers rather
   than two.
-- **Merging modules to clear the cache threshold has a cost.** A larger module
-  takes longer to download and compile on the first visit. This is a trade
-  between first-visit and repeat-visit cost, and it depends on your traffic.
-- **Streaming needs the right MIME type.** Serving `application/octet-stream`
-  silently falls back to the slower non-streaming path with no error.
+- **Do not inflate a module to chase a cache threshold.** A larger module costs
+  every first-time visitor more download and compile time, to chase a number no
+  engine guarantees. If repeat-visit cost matters that much, measure it.
+- **The wrong MIME type is a failure, not a slowdown.** Serving
+  `application/octet-stream` rejects the streaming call. If your page appears to
+  work anyway, a loader is catching that rejection for you.
 - **Startup measured on a fast connection is not startup.** Download dominates
   on real networks; measure with throttling.
 

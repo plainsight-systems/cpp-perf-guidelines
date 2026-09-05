@@ -13,11 +13,12 @@ Most published WebAssembly performance material — and most developer experienc
 — is V8 on desktop. That is a narrow slice of what a web target actually has to
 run on, and the differences are not marginal.
 
-**Engines tier differently.** V8 uses two compiler tiers: Liftoff compiles the
-whole module eagerly, TurboFan replaces hot functions in the background.
-SpiderMonkey also uses two. JavaScriptCore uses **three** — an LLInt interpreter
-plus BBQ and OMG. A warm-up procedure tuned to V8's curve is not automatically
-valid on Safari, and V8's tracing markers have no equivalent there.
+**Engines tier differently.** V8 uses two compiler tiers and compiles lazily:
+Liftoff compiles a function when it is first called, and TurboFan recompiles it
+on a background thread once it is called often enough. SpiderMonkey also uses
+two compiler tiers. JavaScriptCore uses **three** — an LLInt interpreter plus
+BBQ and OMG. A warm-up procedure tuned to V8's curve is not automatically valid
+on Safari, and V8's tracing markers have no equivalent there.
 
 **Mobile ceilings are far below desktop ones.** Unity documents separate, more
 aggressive memory tuning for mobile browsers, advising that initial memory size
@@ -25,9 +26,13 @@ be set to the application's typical heap usage rather than left at a
 desktop-friendly default. A heap budget that is comfortable on a desktop can get
 the tab reclaimed on a phone.
 
-**Graphics capability spans an order of magnitude.**
-`maxStorageBufferBindingSize` is documented at a 128 MB floor on mobile and up
-to 4 GB on desktop — 32× across devices one build must serve.
+**Graphics capability varies far more than the specification tells you.**
+WebGPU publishes *defaults* every adapter must meet — 128 MiB for
+`maxStorageBufferBindingSize` — but it does not classify limits by device class,
+and what an adapter advertises above the default is device-, driver- and
+browser-specific, reported in privacy-motivated tiers. The range you design
+against has to come from measuring your own target devices, not from a
+published table.
 
 And the API baseline is not what the newest documentation implies: Godot's web
 export is **WebGL 2.0 only and does not support WebGPU**, and Unity's shipped Web
@@ -43,8 +48,9 @@ target is WebGL-based. WebGPU is the leading edge, not the floor.
   tiering shape, and tracing markers are V8-specific.
 - **Re-derive warm-up per engine.** An iteration count tuned against Liftoff and
   TurboFan says nothing about LLInt, BBQ and OMG.
-- **Verify against the documented floor, not the granted limits** on your
-  hardware (`WASM.10`).
+- **Verify against the WebGPU defaults, not the limits granted** on your
+  hardware (`WASM.10`). The defaults are the only figures the specification
+  guarantees.
 - **Pick the graphics baseline from the matrix, not from the newest API.** If the
   matrix includes engines or devices without WebGPU, WebGL 2 is the floor and
   WebGPU is an enhancement.
@@ -60,14 +66,16 @@ target is WebGL-based. WebGPU is the leading edge, not the floor.
 // lives in a spreadsheet is not a control; this one can be tested.
 struct TargetProfile {
     const char* name;                   // "desktop-chromium", "ios-safari"
-    std::size_t heap_budget_bytes;      // what THIS device can actually hold
-    std::uint64_t min_storage_binding;  // the documented floor for this class
+    std::size_t heap_budget_bytes;      // MEASURED on this device, not assumed
+    std::uint64_t min_storage_binding;  // what you require; default is 128 MiB
     bool has_webgpu;                    // false is a supported configuration
     bool cross_origin_isolated;         // determines threads and clock
 };
 
-// Ordered weakest-first, because the weakest row is the one that constrains
-// every sizing decision in the application.
+// Ordered weakest-first, because the weakest row constrains every sizing
+// decision. Every number here must come from a measurement on that device --
+// the WebGPU specification publishes defaults, not device classes, and no
+// vendor publishes a per-device heap ceiling.
 inline constexpr std::array<TargetProfile, 3> kTargets{{
     {"mobile-safari",    192u * 1024 * 1024, 128u * 1024 * 1024, false, false},
     {"mobile-chromium",  256u * 1024 * 1024, 128u * 1024 * 1024, true,  false},
@@ -123,9 +131,11 @@ struct WarmupPolicy {
 
 - **A wide matrix costs real engineering.** Each row is testing, CI capacity and
   bug surface. Narrowing it is legitimate; leaving it unstated is not.
-- **Published mobile memory figures are scarce.** Vendor documentation gives
-  guidance rather than hard limits, and community-reported numbers vary by device
-  and OS version. Treat them as directional and verify on hardware.
+- **Published mobile memory figures are scarce, and device-class tables are
+  mostly folklore.** Vendor documentation gives guidance rather than hard limits;
+  community-reported numbers vary by device and OS version. Anything you cannot
+  trace to a specification default or your own measurement should be treated as
+  unverified.
 - **The weakest device may not be the oldest.** A recent phone under memory
   pressure from other tabs can be tighter than an older one at rest.
 - **Sizing for the floor can waste capable hardware.** Where that matters, scale

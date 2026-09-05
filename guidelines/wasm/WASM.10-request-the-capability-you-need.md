@@ -27,11 +27,14 @@ depends on whatever the development machine happened to advertise, and fails
 somewhere else for reasons no one can trace. This is precisely the failure the
 limits design exists to prevent.
 
-The spread is not small. `maxStorageBufferBindingSize` is documented at a 128 MB
-floor on mobile and up to 4 GB on desktop — a 32× range across devices one build
-must serve. Browsers additionally report **tiered** values to reduce
-fingerprinting surface, so the advertised numbers are quantized and vary by
-browser.
+The spread is not small, but it is also not something the specification
+enumerates for you. WebGPU defines *defaults* every adapter must meet —
+128 MiB for `maxStorageBufferBindingSize`, 8 for
+`maxStorageBuffersPerShaderStage` — and says nothing about device classes.
+What a given adapter advertises above those is device-, driver- and
+browser-dependent, and is deliberately reported in **tiers** to reduce
+fingerprinting surface. So the only trustworthy range is one you measured on
+the devices in your target matrix.
 
 ## Guidance
 
@@ -43,8 +46,8 @@ browser.
   plan against them.
 - **Read the granted limits back and plan from those.** `GPUDevice.limits` is
   what validation enforces, and it is known only after acquisition.
-- **Verify at the spec floor.** Your packing must work at the documented
-  minimums, because some device will grant exactly those.
+- **Verify at the documented defaults.** Your packing must work at the WebGPU
+  minimums, because some device will grant exactly those and nothing more.
 - **Distinguish the limits that constrain different things.** Allocation size,
   bindable range, binding count, and offset alignment are separate constraints;
   satisfying one does not satisfy the others.
@@ -77,67 +80,103 @@ struct DeviceRequirements {
 // Each number should be traceable to a structure in the application.
 inline constexpr DeviceRequirements kRequirements{
     .max_buffer_size = 128u * 1024 * 1024,         // largest atlas we build
-    .max_storage_binding_size = 128u * 1024 * 1024,// spec floor: we fit in it
-    .max_storage_buffers_per_stage = 8,            // spec floor: 4 in, 4 out
+    .max_storage_binding_size = 128u * 1024 * 1024,// the WebGPU default
+    .max_storage_buffers_per_stage = 8,            // the WebGPU default; this
+                                                   // renderer binds 8 in total
     .rationale = "sized for the mobile floor; see packet NNN",
 };
 
-// The planner consumes GRANTED limits, never advertised ones. Note that these
-// are four separate constraints: a plan can satisfy allocation size and still
-// be unbindable because it violated alignment or binding count.
+// The planner consumes GRANTED limits, never advertised ones. These are four
+// separate constraints: a plan can satisfy allocation size and still be
+// unbindable because it violated alignment or binding count.
 class BufferPlanner {
 public:
     struct Granted {
-        std::uint64_t max_buffer_size;             // caps buffer creation
-        std::uint64_t max_storage_binding_size;    // caps the bound range
-        std::uint64_t min_storage_offset_alignment;// caps suballocated offsets
+        std::uint64_t max_buffer_size;              // caps buffer creation
+        std::uint64_t max_storage_binding_size;     // caps the bound range
+        std::uint64_t min_storage_offset_alignment; // caps suballocated offsets
         std::uint32_t max_storage_buffers_per_stage;// caps bindings per shader
     };
+
+    // Preconditions are checked, not assumed: alignment must be a non-zero
+    // power of two, or align_up below is meaningless (I.5, ES.103).
+    [[nodiscard]] static bool granted_is_usable(const Granted& g) noexcept {
+        return g.min_storage_offset_alignment != 0
+            && (g.min_storage_offset_alignment & (g.min_storage_offset_alignment - 1)) == 0
+            && g.max_buffer_size != 0
+            && g.max_storage_binding_size != 0
+            && g.max_storage_buffers_per_stage != 0;
+    }
 
     explicit BufferPlanner(Granted granted) noexcept : granted_(granted) {}
 
     // Returns nullopt rather than clamping. A silently clamped plan is a plan
-    // that uploads correctly and cannot be bound.
+    // that uploads correctly and then cannot be bound.
     [[nodiscard]] std::optional<Plan> plan(
             std::span<const Tensor> tensors) const noexcept {
-        std::uint64_t offset = 0;
+        if (!granted_is_usable(granted_)) {
+            return std::nullopt;
+        }
+
         Plan plan;
+        plan.buffers.emplace_back();      // never call back() on an empty vector
+        std::uint64_t offset = 0;
 
         for (const Tensor& t : tensors) {
-            // A suballocated binding must start on an aligned boundary, so the
-            // padding is part of the budget, not a surprise at bind time.
-            offset = align_up(offset, granted_.min_storage_offset_alignment);
-
-            if (t.bytes > granted_.max_storage_binding_size) {
-                return std::nullopt;               // will never be bindable
-            }
-            if (offset + t.bytes > granted_.max_buffer_size) {
-                offset = 0;                        // start a new physical buffer
-                plan.buffers.push_back(Buffer{});
-            }
-            if (plan.buffers.back().binding_count + 1 >
-                granted_.max_storage_buffers_per_stage) {
-                return std::nullopt;               // too many bindings per shader
+            // Reject before any arithmetic: a tensor that exceeds either ceiling
+            // can never be placed, in this buffer or a fresh one.
+            if (t.bytes > granted_.max_storage_binding_size ||
+                t.bytes > granted_.max_buffer_size) {
+                return std::nullopt;
             }
 
-            plan.buffers.back().place(t, offset);
-            offset += t.bytes;
+            const std::uint64_t aligned = align_up(offset, granted_.min_storage_offset_alignment);
+            if (aligned == kAlignOverflow) {
+                return std::nullopt;
+            }
+
+            // Subtract instead of adding, so the check cannot overflow. t.bytes
+            // is already known to be <= max_buffer_size, so this is well formed.
+            const bool fits_here = aligned <= granted_.max_buffer_size - t.bytes;
+            if (!fits_here) {
+                plan.buffers.emplace_back();   // start a new physical buffer
+                offset = 0;
+            }
+
+            Buffer& current = plan.buffers.back();
+            if (current.binding_count == granted_.max_storage_buffers_per_stage) {
+                return std::nullopt;           // too many bindings for one shader
+            }
+
+            const std::uint64_t place_at =
+                fits_here ? aligned : 0;       // a fresh buffer starts at zero
+            current.place(t, place_at);
+            offset = place_at + t.bytes;       // <= max_buffer_size, so no wrap
         }
         return plan;
     }
 
 private:
-    static constexpr std::uint64_t align_up(std::uint64_t v, std::uint64_t a) noexcept {
-        return (v + a - 1) / a * a;
+    static constexpr std::uint64_t kAlignOverflow = ~std::uint64_t{0};
+
+    // Reports overflow rather than wrapping. `a` is a non-zero power of two,
+    // checked by granted_is_usable above.
+    [[nodiscard]] static constexpr std::uint64_t align_up(std::uint64_t v,
+                                                          std::uint64_t a) noexcept {
+        const std::uint64_t mask = a - 1;
+        if (v > (~std::uint64_t{0}) - mask) {
+            return kAlignOverflow;
+        }
+        return (v + mask) & ~mask;
     }
+
     Granted granted_;
 };
 
-// A test at the spec floor is not optional. Some device grants exactly this,
-// and it will not be the one on your desk.
+// A test at the documented default is not optional. Some device grants exactly
+// these, and it will not be the one on your desk.
 static_assert(kRequirements.max_storage_binding_size <= 128u * 1024 * 1024,
-              "requirements must be satisfiable at the documented floor");
-```
+              "requirements must be satisfiable at the WebGPU default limits");
 
 ## Caveats
 

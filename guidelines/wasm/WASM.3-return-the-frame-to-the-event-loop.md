@@ -25,16 +25,16 @@ carrying no size or speed overhead. The cost is a one-time restructuring: state
 that lived in loop locals must move into an explicit frame context.
 
 **Or instrument the whole module so it can unwind and rewind.** That is
-Asyncify, and Emscripten puts its cost at "something like 50% or so" in *both*
-code size and speed — a permanent tax on the entire module, paid to avoid a
-one-time refactor. `-O3` becomes close to mandatory because unoptimized Asyncify
+Asyncify, and Emscripten's own documentation puts the overhead at roughly half
+again, in *both* code size and speed — a permanent tax on the entire module,
+paid to avoid a one-time refactor. `-O3` becomes close to mandatory because unoptimized Asyncify
 builds are very large.
 
 ## Guidance
 
 - **Restructure the loop; treat Asyncify as a porting crutch with a price tag.**
-  A permanent ~50% overhead to avoid a bounded refactor is rarely the right
-  trade.
+  A permanent overhead of roughly 50% to avoid a bounded refactor is rarely the
+  right trade.
 - **Make frame-persistent state explicit.** Anything that was a loop local and
   must survive to the next frame belongs in a frame context object, not a
   function-local or a global.
@@ -42,9 +42,12 @@ builds are very large.
   display-driven; it follows the browser's presentation cadence.
 - **Pass `0` as the fps argument** to `emscripten_set_main_loop` to use
   `requestAnimationFrame` rather than a fixed timer.
-- **Remember the loop function returns.** Do not rely on destructors at the end
-  of the loop body running "after the game"; nothing after
-  `emscripten_set_main_loop` runs when `-sEXIT_RUNTIME=0` (the default).
+- **Know which `simulate_infinite_loop` mode you asked for.** With `false` the
+  call returns normally, the caller's stack unwinds, and code after the call
+  runs before the first frame — so stack objects the loop needs are already
+  destroyed. With `true` the call throws to stop the caller, and the stack is
+  not unwound. Neither mode runs global destructors or `atexit` handlers, since
+  the loop is still live.
 - **Where async really is unavoidable, prefer JSPI over Asyncify.** `-sJSPI`
   keeps code size flat, at the cost of declaring boundaries explicitly through
   `JSPI_IMPORTS` and `JSPI_EXPORTS`, which Asyncify infers.
@@ -78,32 +81,56 @@ struct FrameContext {
     double previous_seconds;                // was a loop local above
 };
 
-// Called once per frame by the browser. Returning is what lets the page render,
-// handle input, and stay responsive -- it is the point, not an inconvenience.
-void step_once(void* user_data) {
-    auto& ctx = *static_cast<FrameContext*>(user_data);
-
-    const double current = emscripten_get_now() / 1000.0;
-    ctx.world.step(current - ctx.previous_seconds);
-    ctx.renderer.draw(ctx.world);
-    ctx.previous_seconds = current;
-
-    if (ctx.world.should_quit()) {
-        emscripten_cancel_main_loop();      // stop being scheduled
-        delete &ctx;                        // we own it; see the caveat below
+// The loop outlives every scope in this file, so something must own the context
+// for that whole time. An owning registry keeps that explicit: no raw `new`, no
+// `delete` in a callback (R.11), and the callback's pointer is plainly
+// non-owning (R.3).
+class MainLoop {
+public:
+    // The callback receives a NON-owning pointer. Ownership stays here.
+    static void start(std::unique_ptr<FrameContext> ctx) {
+        instance() = std::move(ctx);
+        // fps = 0 selects requestAnimationFrame, which follows the display
+        // rather than a fixed timer. simulate_infinite_loop = 0 means this call
+        // returns and the caller's stack unwinds -- which is why the context
+        // could not have lived on that stack.
+        emscripten_set_main_loop_arg(&MainLoop::step, instance().get(),
+                                     /*fps=*/0, /*simulate_infinite_loop=*/0);
     }
-}
+
+    static void stop() noexcept {
+        emscripten_cancel_main_loop();
+        instance().reset();                 // RAII, not `delete &ctx`
+    }
+
+private:
+    static std::unique_ptr<FrameContext>& instance() noexcept {
+        static std::unique_ptr<FrameContext> ctx;
+        return ctx;
+    }
+
+    // Called once per frame by the browser. Returning is what lets the page
+    // render, handle input and stay responsive -- it is the point, not an
+    // inconvenience.
+    static void step(void* user_data) {
+        auto& ctx = *static_cast<FrameContext*>(user_data);   // non-owning view
+
+        const double current = emscripten_get_now() / 1000.0;
+        ctx.world.step(current - ctx.previous_seconds);
+        ctx.renderer.draw(ctx.world);
+        ctx.previous_seconds = current;
+
+        if (ctx.world.should_quit()) {
+            stop();
+        }
+    }
+};
 
 void run_browser() {
-    // Heap-allocated deliberately: `main` returns immediately after this call,
-    // so a stack object here would be destroyed before the first frame runs.
-    auto* ctx = new FrameContext{Renderer{}, World{}, emscripten_get_now() / 1000.0};
-
-    // fps = 0 means "use requestAnimationFrame", which matches the display
-    // rather than a fixed timer. simulate_infinite_loop = 0 means this call
-    // returns and main() exits normally, leaving the loop scheduled.
-    emscripten_set_main_loop_arg(step_once, ctx, /*fps=*/0,
-                                 /*simulate_infinite_loop=*/0);
+    MainLoop::start(std::make_unique<FrameContext>(
+        Renderer{}, World{}, emscripten_get_now() / 1000.0));
+    // Execution reaches here: with simulate_infinite_loop = 0 the call returned.
+    // Anything below runs BEFORE the first frame, not after the last.
 }
 
 // What Asyncify would have bought instead: the original loop, unchanged, with
@@ -123,9 +150,11 @@ void run_browser() {
 
 ## Caveats
 
-- **`-sEXIT_RUNTIME` changes the ownership story.** With the runtime kept alive,
-  the frame context must outlive `main`; leaking it deliberately is a legitimate
-  choice, but say so in a comment rather than leaving it ambiguous.
+- **The two loop modes have different ownership stories.** With
+  `simulate_infinite_loop = 0` the stack unwinds, so frame state must be owned
+  somewhere that survives the call. With `1` the stack is not unwound, but the
+  caller is stopped by a thrown exception — which is unavailable if the build
+  disables exceptions.
 - **Asyncify is the right answer for some ports.** A large legacy codebase with
   blocking I/O threaded through hundreds of call sites may not be refactorable
   on any realistic schedule. The rule is to price it, not to ban it.

@@ -46,8 +46,11 @@ someone adds to a build.
   variant is scalarized.
 - **Treat relaxed SIMD as a determinism decision.** If reproducibility is a
   requirement, `-mrelaxed-simd` is off, and the reason belongs in the build.
-- **Disable autovectorization when hand-writing** with `-fno-vectorize
-  -fno-slp-vectorize`, so the compiler does not undo the layout you chose.
+- **Reach for `-fno-vectorize -fno-slp-vectorize` only if you measure a
+  problem.** Hand-written intrinsics and autovectorization coexist in one module
+  perfectly well; Emscripten documents these switches for when autovectorization
+  is unwanted, not as a prerequisite for intrinsics. If a specific function
+  regresses, scope the change to that function rather than the build.
 - **Ship a scalar variant.** A SIMD module fails to instantiate where SIMD is
   unavailable; see `WASM.13`.
 
@@ -74,11 +77,16 @@ inline v128_t clamp_fast(v128_t x, v128_t lo, v128_t hi) noexcept {
 
 // A worked kernel: premultiply RGBA by alpha, four pixels at a time. Note the
 // widening to i16x8 for the multiply -- i8x16.mul is emulated at ~10
-// instructions, so the widen-multiply-narrow sequence is cheaper than the
-// operation it replaces.
+// instructions, so widen-multiply-narrow is cheaper than the operation it
+// replaces.
 void premultiply(std::span<std::uint8_t> rgba) noexcept {
 #ifdef __wasm_simd128__
     const std::size_t vector_count = rgba.size() / 16;      // 16 bytes = 4 pixels
+
+    // Lanes 3 and 7 are the alpha lanes of the two pixels in each 16-bit half.
+    // Broadcasting alpha across a pixel necessarily multiplies alpha by itself,
+    // so the original alpha has to be put back; see the select below.
+    const v128_t alpha_lane_mask = wasm_i16x8_make(0, 0, 0, -1, 0, 0, 0, -1);
 
     for (std::size_t i = 0; i != vector_count; ++i) {
         std::uint8_t* p = rgba.data() + i * 16;
@@ -89,19 +97,28 @@ void premultiply(std::span<std::uint8_t> rgba) noexcept {
         const v128_t lo = wasm_u16x8_extend_low_u8x16(pixels);
         const v128_t hi = wasm_u16x8_extend_high_u8x16(pixels);
 
-        // Shuffle indices are compile-time constants, so this is a shuffle
-        // rather than a swizzle -- broadcast each pixel's alpha across its
-        // three colour lanes.
+        // Shuffle indices are compile-time constants, so this lowers to
+        // i8x16.shuffle rather than a swizzle -- broadcast each pixel's alpha
+        // across its own four lanes.
         const v128_t alpha_lo = wasm_i16x8_shuffle(lo, lo, 3, 3, 3, 3, 7, 7, 7, 7);
         const v128_t alpha_hi = wasm_i16x8_shuffle(hi, hi, 3, 3, 3, 3, 7, 7, 7, 7);
 
-        // (c * a + 127) / 255, approximated as (c * a * 257 + 257) >> 16.
-        // The shift amount is a literal: a variable shift would add a bounds
-        // check on every lane.
+        // (c * a) >> 8, i.e. divide by 256 rather than 255. This is the usual
+        // fast approximation and is up to one LSB low: at a = 255 a channel of
+        // 200 yields 199, not 200. If exactness matters, use (c * a + 127) / 255
+        // -- which is a different and more expensive sequence, not this one.
+        // The shift amount is a literal; a variable shift adds a per-lane bound
+        // check.
         const v128_t scaled_lo = wasm_u16x8_shr(wasm_i16x8_mul(lo, alpha_lo), 8);
         const v128_t scaled_hi = wasm_u16x8_shr(wasm_i16x8_mul(hi, alpha_hi), 8);
 
-        wasm_v128_store(p, wasm_u8x16_narrow_i16x8(scaled_lo, scaled_hi));
+        // Restore the untouched alpha. Without this the alpha lane holds
+        // (a * a) >> 8 -- 254 instead of 255 at full opacity, 10 instead of 51
+        // at a fifth. Premultiplication must leave alpha alone.
+        const v128_t out_lo = wasm_v128_bitselect(lo, scaled_lo, alpha_lane_mask);
+        const v128_t out_hi = wasm_v128_bitselect(hi, scaled_hi, alpha_lane_mask);
+
+        wasm_v128_store(p, wasm_u8x16_narrow_i16x8(out_lo, out_hi));
     }
 
     premultiply_scalar(rgba.subspan(vector_count * 16));    // tail

@@ -111,9 +111,14 @@ struct ShadeBenchResult {
 
 // Guard the property in code as well, so the failure is a compile error rather
 // than a CI message arriving after the design has drifted.
-#if defined(__EMSCRIPTEN__) && defined(BUILDING_CORE)
-#  error "src/core must not be compiled with browser-specific assumptions; \
-          platform code belongs in platform/wasm"
+//
+// Note what this must NOT do: reject the Emscripten target itself. The core is
+// supposed to compile for wasm AND native from one source -- that is the whole
+// design -- so `#if defined(__EMSCRIPTEN__)` alone would forbid exactly the
+// build this guideline exists to enable. Guard the *dependency*, not the
+// target.
+#if defined(BUILDING_CORE) && defined(EMSCRIPTEN_H)
+#  error "src/core included emscripten.h; platform code belongs in platform/wasm"
 #endif
 ```
 

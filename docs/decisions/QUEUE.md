@@ -43,6 +43,12 @@ This file tracks active and accepted work.
   (WASM.1–WASM.14), covering C++ compiled to WebAssembly and the browser
   interop seams. Corpus now 11 categories, 101 guidelines. Packet
   completed; pending maintainer review.
+- `2026-09-05-wasm-review-remediation` — worked the independent review of the
+  `wasm` category: one P0 (undefined behavior in an example), eight P1
+  (incorrect API and toolchain claims, historical engine behavior presented as
+  current, unsupported device thresholds, one reversed attribution), three P2,
+  and the Core Guidelines findings in the examples. Packet completed; pending
+  maintainer review.
 
 ## Parking Lot
 

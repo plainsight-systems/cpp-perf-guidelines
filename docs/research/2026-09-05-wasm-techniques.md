@@ -322,8 +322,10 @@ two consequences, documented in unrelated places.
 ### 8. SIMD pays well, is fixed at 128 bits, and has documented sharp edges
 
 - `-msimd128` enables fixed-width 128-bit SIMD (`__wasm_simd128__`);
-  `-mrelaxed-simd` enables relaxed SIMD (`__wasm_relaxed_simd__`), shipping in
-  Chrome 114+, Firefox 120+, Safari 18.4+.
+  `-mrelaxed-simd` enables relaxed SIMD (`__wasm_relaxed_simd__`). Fixed-width
+  SIMD is broadly shipped; relaxed SIMD landed later and more unevenly. Specific
+  version numbers are deliberately not recorded here — see §14: they go stale,
+  and `webassembly.org/features` is the live source.
 - **The payoff is real and large.** Photoshop on the web reports SIMD giving a
   **3–4× speedup on average, and 80–160× in some cases**, chiefly through their
   Halide image-processing kernels.

@@ -12,9 +12,12 @@ tags = ["measurement", "performance-now", "timer-clamp", "devtools", "tiering"]
 Three independent effects make a naive browser timing figure wrong, and all
 three produce numbers that look plausible.
 
-**The clock is clamped.** `performance.now()` resolves to **100 µs** in a
-non-isolated context and **5 µs** in a cross-origin isolated one. The clamp is a
-Spectre mitigation, applied by Chrome since version 91. A page measuring
+**The clock is clamped.** In **Chrome**, `performance.now()` resolves to
+**100 µs** in a non-isolated context and **5 µs** in a cross-origin isolated
+one; the clamp is a Spectre mitigation applied since version 91. Other engines
+clamp too, but not necessarily to those values — treat these as Chrome's
+documented figures rather than the web's, and record the resolution you actually
+observed. A page measuring
 operations that take tens of microseconds is reading quantization noise, and the
 tell is that every reported figure is an exact multiple of the quantum.
 
@@ -64,7 +67,7 @@ struct BrowserMeasurement {
     std::size_t warmup_discarded;
 
     // Conditions. Every one of these changes what the number means.
-    double clock_resolution_us;      // 100.0, or 5.0 when isolated
+    double clock_resolution_us;      // measured, not assumed from a blog post
     bool cross_origin_isolated;      // read at runtime, never assumed
     bool devtools_open;              // if true, the figure is not quotable
     const char* engine;              // "V8 12.x"; tiering differs by engine
@@ -90,6 +93,9 @@ struct BrowserMeasurement {
 // clock reads, each quantized.
 template <typename Fn>
 [[nodiscard]] double mean_cost_ms(Fn&& fn, std::size_t iterations, Clock& clock) {
+    if (iterations == 0) {
+        return 0.0;                  // precondition: dividing by it below (I.5)
+    }
     const double start = clock.now_ms();
     for (std::size_t i = 0; i != iterations; ++i) {
         fn();
@@ -121,7 +127,8 @@ template <typename Fn>
 - **The Performance panel is not free either**, but it accounts for its own
   overhead in a way `performance.now()` under an open DevTools does not.
 - **Warm-up length is engine-specific.** A count tuned to V8's two-tier curve is
-  not valid on JavaScriptCore, which has three tiers.
+  not valid on JavaScriptCore, which has three tiers. Since V8 compiles lazily,
+  the very first call to a function is also its compilation.
 - **Background tabs are throttled** to roughly one update per second, so a
   measurement taken while the tab was hidden is meaningless.
 - **Quantization detection has false positives** on genuinely coarse workloads

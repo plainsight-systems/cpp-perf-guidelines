@@ -17,15 +17,24 @@ resident simultaneously, and the peak is what kills the tab.
 
 The technique that survives this is to pick formats whose **decode target is the
 consumer**, so the data is never materialised in an intermediate expanded form.
-KTX2 with Basis Universal supercompression is the clearest example: one
-interchange asset transcodes at load into whichever GPU format the device wants
-(BC, ASTC, ETC2), staying compressed all the way into VRAM and typically cutting
-texture memory 4–8×. Unity's asset-bundle guidance is the same idea at engine
-scale — load and unload on demand, and keep downloads out of the heap.
+KTX2 with Basis Universal supercompression is the clearest example. One
+interchange asset transcodes at load into whichever block-compressed format the
+device supports — BC, ASTC or ETC2 — so the texture is GPU-resident in a
+compressed form and is never materialised as uncompressed RGBA on either side.
+Those block formats run at roughly 4–8 bits per pixel against 32 bpp for
+uncompressed RGBA, and Basis's own transmission bitrates are lower still
+(ETC1S is documented at roughly 0.3–3 bpp). Unity applies the same principle at
+engine scale from the opposite direction: AssetBundles are documented as
+downloading *directly into the Unity heap*, which avoids the browser making a
+second allocation for the transfer, and they can be loaded and unloaded on
+demand.
 
-The download buffer itself is a resident cost that is easy to forget. Unity
-documents transfer spikes roughly matching bundle size, and those bytes are
-invisible to an in-heap allocator profile.
+The transfer buffer is a resident cost that is easy to forget. Where a download
+lands outside the engine heap it is invisible to an in-heap allocator profile
+while still consuming host memory, which is exactly why Unity routes AssetBundles
+into its own heap instead. Persistence is a separate mechanism again: Unity's
+Data Caching uses the IndexedDB and Cache APIs to avoid re-downloading, which is
+about repeat visits rather than peak residency. (Checked 2026-09-05.)
 
 ## Guidance
 
@@ -37,15 +46,19 @@ invisible to an in-heap allocator profile.
 - **Use checked arithmetic on offsets and sizes.** `offset + length` on a 32-bit
   size type can wrap into an in-range value; treat downloaded data as untrusted.
 - **Choose transcodable texture formats.** KTX2/Basis gives one asset per texture
-  rather than one per target format, and decodes straight to the GPU format.
+  rather than one per target format, and decodes straight to the block-compressed
+  format the device supports — never through an uncompressed intermediate.
 - **Do not use LZMA on the web.** Unity documents decompression stalls; LZ4 or
   uncompressed with Brotli at the transport layer is the working combination.
+- **Split bundles by use**, so a download spike does not match the whole payload —
+  but not so finely that request count dominates.
 - **Compress at the transport layer too.** Brotli on the server is free
   bandwidth; it is not a substitute for the format choice above.
 - **Split bundles by use, not evenly.** A monolithic bundle spikes memory on
   download; too many bundles makes request count dominate.
-- **Cache outside the heap.** IndexedDB or OPFS keeps a cached asset out of
-  linear memory. OPFS access handles are the closest the web has to memory
+- **Cache for repeat visits, separately from residency.** IndexedDB, the Cache
+  API or OPFS avoid re-downloading; that is a different problem from peak
+  memory, and solving one does not solve the other. OPFS access handles are the closest the web has to memory
   mapping, and are what Photoshop uses to page document data.
 
 ## Example
