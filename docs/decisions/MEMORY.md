@@ -71,6 +71,25 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
   divergence, shared/threadgroup memory, launch overhead, CPU/GPU
   pipelining, barriers, transient GPU memory, and GPU profiling).
 
+- [`2026-09-05-wasm-techniques.md`](../research/2026-09-05-wasm-techniques.md)
+  — WebAssembly technique extraction (browser-JIT vs AoT slowdown figures,
+  the safety checks behind indirect-call cost, contiguous linear memory and
+  growth, the cooperative event loop and Asyncify's ~50% tax, FFI transitions
+  on every graphics call, cross-origin isolation as a reach decision,
+  fixed-width wasm SIMD, code caching and tier-up, asset streaming,
+  runtime capability negotiation, browser measurement conditions, and the
+  desktop-Chromium skew in the available evidence).
+
+## Locked Decisions Added by This Packet
+
+- **In-house exploratory work is not a source for this corpus.** Internal
+  projects consume the guidelines; they do not generate them. Their numbers
+  are single-device, single-browser, and taken under changing code.
+  Guidelines must rest on external, citable sources. Recorded 2026-09-05
+  while building the `wasm` category, after an internal harness's conclusion
+  about WebGPU limit negotiation was found to contradict the platform's own
+  guidance.
+
 ## Active Workflow Pointers
 
 - Queue: `QUEUE.md`

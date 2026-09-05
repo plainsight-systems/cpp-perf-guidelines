@@ -7,15 +7,15 @@ This corpus deliberately sits *below* the [ISO C++ Core Guidelines](https://isoc
 The ISO guidelines stop at "use the standard library well" — they tell you to
 minimize allocations and access memory predictably, but never *how*. This corpus
 owns the concrete technique layer: custom allocators, hardware-aware data layout,
-copy/move discipline, object lifetime, embedded constraints, and GPU /
-accelerator optimization.
+copy/move discipline, object lifetime, embedded constraints, GPU / accelerator
+optimization, and WebAssembly browser targets.
 
 It is consumed by the `cpp-perf-guidelines` MCP server in the `mcp-servers`
 workspace, which clones this repo, parses it, and exposes it to agents via the
 Model Context Protocol.
 
 - **Parent entity:** Plainsight Systems LLC — parent-org infrastructure (no operating brand).
-- **Maturity:** early — all ten categories are populated: `memory` (10), `copy-move` (8), `cache-layout` (8), `lifetime` (8), `embedded` (8), `concurrency` (8), `codegen` (8), `simd` (8), `telemetry` (11), and `gpu` (10). All guidelines are `draft`; promotion to `stable` is the maintainer's call.
+- **Maturity:** early — all eleven categories are populated: `memory` (10), `copy-move` (8), `cache-layout` (8), `lifetime` (8), `embedded` (8), `concurrency` (8), `codegen` (8), `simd` (8), `telemetry` (11), `gpu` (10), and `wasm` (14). All guidelines are `draft`; promotion to `stable` is the maintainer's call.
 - **Governance:** built to the [Plainsight Systems engineering philosophy](https://github.com/plainsight-systems/.github/blob/main/engineering_philosophies.md). To contribute, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## How to use this corpus
@@ -47,7 +47,7 @@ local Markdown links.
 ## Repository layout
 
 ```
-categories.toml          Declares the 10 categories (key, ID token, display name).
+categories.toml          Declares the 11 categories (key, ID token, display name).
 guidelines/
   memory/                One subdirectory per category key.
     MEM.1-<slug>.md      One file per guideline.
@@ -60,6 +60,7 @@ guidelines/
   simd/
   telemetry/
   gpu/
+  wasm/
 ```
 
 The document format **is** the parser contract. The MCP server's parser depends on
@@ -120,7 +121,7 @@ tags = ["arena", "allocator"]
 
 ## Categories
 
-See [`categories.toml`](categories.toml). The 10 categories and their ID tokens:
+See [`categories.toml`](categories.toml). The 11 categories and their ID tokens:
 
 | Token  | Category                              |
 |--------|---------------------------------------|
@@ -134,6 +135,7 @@ See [`categories.toml`](categories.toml). The 10 categories and their ID tokens:
 | `SIMD` | SIMD & Vectorization                  |
 | `TLM`  | Telemetry & Observability Harnesses   |
 | `GPU`  | GPU & Accelerator Optimization        |
+| `WASM` | WebAssembly & Browser Targets         |
 
 ## Contributing
 

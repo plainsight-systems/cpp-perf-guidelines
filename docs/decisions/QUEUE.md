@@ -39,6 +39,10 @@ This file tracks active and accepted work.
 - `2026-06-02-gpu-guideline-sharpening` — `gpu` category revised after
   maintainer review to make the guidance more concrete and technique-level.
   Packet completed; pending maintainer review.
+- `2026-09-05-wasm-category-buildout` — `wasm` category built out
+  (WASM.1–WASM.14), covering C++ compiled to WebAssembly and the browser
+  interop seams. Corpus now 11 categories, 101 guidelines. Packet
+  completed; pending maintainer review.
 
 ## Parking Lot
 

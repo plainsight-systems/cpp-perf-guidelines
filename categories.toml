@@ -76,3 +76,10 @@ token = "GPU"
 display_name = "GPU & Accelerator Optimization"
 order = 10
 description = "CUDA, Metal, Vulkan/D3D12 compute, GPU memory movement, coalesced access, occupancy, divergence, command submission, barriers, and CPU/GPU synchronization."
+
+[[category]]
+key = "wasm"
+token = "WASM"
+display_name = "WebAssembly & Browser Targets"
+order = 11
+description = "Linear memory sizing, the JS/FFI boundary, the cooperative event loop, indirect-dispatch cost, cross-origin isolation and threads, wasm SIMD, startup and code caching, module size, asset streaming, and browser measurement conditions."
