@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
 # codex-review.sh — independent review of a packet and the corpus content it adds.
 #
+# INTERNAL MAINTAINER WORKFLOW. This is not part of contributing to the corpus
+# and nothing in the repository requires it. Contributors need only
+# `python3 tools/validate_corpus.py`; see CONTRIBUTING.md. The script is kept
+# in the repository because it is useful to whoever maintains the corpus next,
+# not because anyone is expected to run it.
+#
+# It assumes a locally configured `codex` CLI and two locally running MCP
+# servers. Both are maintainer-side setup, not project dependencies.
+#
 # Usage:  ./scripts/codex-review.sh <packet-file> [output-file]
 #
-# Adapted from the browser-llm script of the same name. The difference matters:
-# there, the artifact under review is application code, and the question is
-# whether it works. Here the artifact is *guidance other people will follow*,
-# and the question is whether it is TRUE. A corpus entry that is elegant,
-# well-formatted and factually wrong is worse than no entry, because it will be
-# cited.
+# The artifact under review is *guidance other people will follow*, so the
+# question is whether it is TRUE. A corpus entry that is elegant, well-formatted
+# and factually wrong is worse than no entry, because it will be cited.
 #
 # Default output: docs/research/<packet-name>-codex-review.md
 #
@@ -19,14 +25,16 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-# Pinned here rather than in ~/.codex/config.toml so this script's behavior does
-# not drift with the user's interactive default. Override with CODEX_MODEL.
-MODEL="${CODEX_MODEL:-gpt-5.6-sol}"
+# Model is not pinned here: hardcoding one bakes a moving, environment-specific
+# choice into a public repository. Set CODEX_MODEL to override; unset, the codex
+# CLI uses whatever the operator has configured.
+MODEL="${CODEX_MODEL:-}"
 EFFORT="${CODEX_EFFORT:-high}"
 
-# The MCP servers this review is required to consult. Names must match the
-# server keys in ~/.codex/config.toml or the reviewer will cite tools it never
-# called.
+# The MCP servers this review is required to consult. These are local defaults
+# for the maintainer's setup; point them wherever yours listen. The server keys
+# must also match the reviewer's own configuration, or it will cite tools it
+# never called.
 GUIDELINES_URL="${CPP_GUIDELINES_URL:-http://127.0.0.1:7011}"
 PERF_URL="${CPP_PERF_URL:-http://127.0.0.1:7015}"
 
@@ -231,13 +239,18 @@ PROMPTEOF
 # calls are cancelled and the review proceeds having read no guideline at all.
 # Do not drop this flag.
 echo "codex-review.sh: reviewing ${PACKET}" >&2
-echo "  model:  ${MODEL} (effort ${EFFORT})" >&2
+echo "  model:  ${MODEL:-<codex default>} (effort ${EFFORT})" >&2
 echo "  output: ${OUTPUT}" >&2
 
 mkdir -p "$(dirname "${OUTPUT}")"
 
+# Only pass -m when the operator asked for a specific model.
+MODEL_ARGS=""
+[ -n "${MODEL}" ] && MODEL_ARGS="-m ${MODEL}"
+
+# shellcheck disable=SC2086  # MODEL_ARGS is intentionally word-split or empty
 codex -a on-request exec \
-  -m "${MODEL}" \
+  ${MODEL_ARGS} \
   -c model_reasoning_effort="\"${EFFORT}\"" \
   -o "${OUTPUT}" \
   - < "${PROMPT_FILE}" || {

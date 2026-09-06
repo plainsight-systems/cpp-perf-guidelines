@@ -8,10 +8,35 @@ A curated corpus of low-level C++ performance guidelines. Each guideline is a
 single Markdown file with TOML frontmatter under `guidelines/<category>/`. The
 format is specified in `README.md` — read it before adding or changing entries.
 
+## Contributions are judged on content, not process
+
+**You do not have to adopt our workflow to contribute here.** Open a pull
+request with a good guideline and it will be considered on the guideline.
+
+This repository contains artifacts from how the maintainers happen to work:
+decision packets under `docs/decisions/`, research notes under
+`docs/research/`, and maintainer scripts under `scripts/`. None of it is a
+requirement placed on you. You are not asked to write a packet, record
+research, run a review script, or follow any of it. Read it if it is useful,
+ignore it otherwise.
+
+Two things are actually required, and they exist to keep the corpus parseable
+by the MCP server rather than to impose a process:
+
+1. The file format in `README.md`.
+2. `python3 tools/validate_corpus.py` passes.
+
+That is the whole bar.
+
+The `scripts/` directory in particular is internal maintainer workflow. It
+assumes tooling configured on a maintainer's machine, is not wired into
+anything, and is not needed to add or change a guideline.
+
 ## Engineering philosophy
 
 This corpus is maintained to the Plainsight Systems engineering philosophy:
 <https://github.com/plainsight-systems/.github/blob/main/engineering_philosophies.md>
+It describes how the maintainers work. It is not a contribution requirement.
 
 ## Adding or changing a guideline
 
