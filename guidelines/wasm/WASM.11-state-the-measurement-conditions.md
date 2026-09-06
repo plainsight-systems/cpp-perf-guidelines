@@ -70,7 +70,7 @@ struct BrowserMeasurement {
     double clock_resolution_us;      // measured, not assumed from a blog post
     bool cross_origin_isolated;      // read at runtime, never assumed
     bool devtools_open;              // if true, the figure is not quotable
-    const char* engine;              // "V8 12.x"; tiering differs by engine
+    std::string_view engine;         // "V8 12.x"; tiering differs by engine
 };
 
 // The quantization check. If every sample is a multiple of the clock's

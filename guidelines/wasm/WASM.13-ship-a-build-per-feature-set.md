@@ -71,6 +71,10 @@ void convolve_scalar(std::span<float> out, std::span<const float> in,
 
 // Expose which variant is running so it reaches diagnostics and bug reports.
 // "Slow on my machine" is unactionable without knowing which module loaded.
+//
+// const char* rather than string_view here is deliberate and is the exception
+// to SL.str.2: this crosses the C ABI to JavaScript, which can only read a
+// NUL-terminated pointer out of linear memory.
 extern "C" const char* build_variant() noexcept {
 #ifdef __wasm_simd128__
     return "simd128";
@@ -108,8 +112,8 @@ extern "C" const char* build_variant() noexcept {
 // Assert that both variants stay in the build. A variant that stops being
 // produced is discovered by a user on the platform you do not develop on.
 struct BuildMatrix {
-    const char* variant;          // "baseline", "simd128"
-    const char* artifact_path;    // path-versioned, one cache entry each
+    std::string_view variant;     // "baseline", "simd128"
+    std::string_view artifact_path;  // stable URL; one cache entry each
     bool covered_by_tests;        // the baseline row is the one that lapses
     // Each row warms its code cache independently; see WASM.7.
 };

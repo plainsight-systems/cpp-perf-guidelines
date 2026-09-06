@@ -82,9 +82,11 @@ private:
 // implementation. The bytes stop scaling with the number of instantiations.
 class RegistryBase {
 protected:
-    void add_bytes(const void* value, std::size_t size);
-    void remove_bytes(const void* value, std::size_t size);
-    [[nodiscard]] bool contains_bytes(const void* value, std::size_t size) const;
+    // A span of bytes rather than (void*, size): type erasure without giving up
+    // the size, and no unverified cast at the call site (I.4, R.14).
+    void add_bytes(std::span<const std::byte> value);
+    void remove_bytes(std::span<const std::byte> value);
+    [[nodiscard]] bool contains_bytes(std::span<const std::byte> value) const;
 private:
     std::vector<std::byte> storage_;    // one implementation, shared
 };
@@ -96,10 +98,15 @@ class SmallRegistry : private RegistryBase {
 public:
     // Each of these is a few instructions that forward to the shared body,
     // rather than a full copy of the container's logic.
-    void add(const T& value) { add_bytes(&value, sizeof(T)); }
-    void remove(const T& value) { remove_bytes(&value, sizeof(T)); }
+    void add(const T& value) { add_bytes(as_bytes(value)); }
+    void remove(const T& value) { remove_bytes(as_bytes(value)); }
     [[nodiscard]] bool contains(const T& value) const {
-        return contains_bytes(&value, sizeof(T));
+        return contains_bytes(as_bytes(value));
+    }
+
+private:
+    [[nodiscard]] static std::span<const std::byte> as_bytes(const T& value) noexcept {
+        return std::as_bytes(std::span<const T, 1>{&value, 1});
     }
 };
 
@@ -108,10 +115,10 @@ public:
 struct SizeBudget {
     std::size_t wasm_compressed_bytes;
     std::size_t js_glue_compressed_bytes;
-    const char* optimisation_level;    // "-Oz", "-O3"
+    std::string_view optimisation_level;  // "-Oz", "-O3"
     bool lto_enabled;
     bool closure_enabled;
-    const char* exception_mode;        // "-fwasm-exceptions", "-fno-exceptions"
+    std::string_view exception_mode;      // "-fwasm-exceptions", "-fno-exceptions"
 };
 ```
 

@@ -73,7 +73,7 @@ struct DeviceRequirements {
     std::uint64_t max_buffer_size;                 // largest single allocation
     std::uint64_t max_storage_binding_size;        // largest bindable range
     std::uint32_t max_storage_buffers_per_stage;   // bindings one shader needs
-    const char* rationale;                         // why these numbers
+    std::string_view rationale;                    // why these numbers
 };
 
 // Derived from what the renderer actually does, not from what a GPU offers.

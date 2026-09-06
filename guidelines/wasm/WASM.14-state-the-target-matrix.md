@@ -65,7 +65,7 @@ target is WebGL-based. WebGPU is the leading edge, not the floor.
 // The matrix as data, so it can be asserted rather than assumed. A budget that
 // lives in a spreadsheet is not a control; this one can be tested.
 struct TargetProfile {
-    const char* name;                   // "desktop-chromium", "ios-safari"
+    std::string_view name;              // "desktop-chromium", "ios-safari"
     std::size_t heap_budget_bytes;      // MEASURED on this device, not assumed
     std::uint64_t min_storage_binding;  // what you require; default is 128 MiB
     bool has_webgpu;                    // false is a supported configuration
@@ -121,9 +121,9 @@ public:
 // Warm-up is engine-specific, so it is a property of the target rather than a
 // constant. A single hardcoded count is a V8 assumption in disguise.
 struct WarmupPolicy {
-    const char* engine;              // "V8", "JavaScriptCore", "SpiderMonkey"
+    std::string_view engine;         // "V8", "JavaScriptCore", "SpiderMonkey"
     std::size_t iterations;          // JSC has three tiers; V8 has two
-    const char* basis;               // how this count was determined
+    std::string_view basis;          // how this count was determined
 };
 ```
 

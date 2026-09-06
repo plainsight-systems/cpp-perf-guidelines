@@ -88,6 +88,11 @@ public:
     //
     // Owning storage is a unique_ptr, not malloc/free (R.10, R.11): the
     // destructor cannot be forgotten and the type is not copyable by accident.
+    //
+    // make_unique throws bad_alloc on failure. Under -fno-exceptions (WASM.8)
+    // that becomes an abort instead -- which is still failing fast at init with
+    // a known budget in hand (E.26), and is preferable to a pool that pretends
+    // to hold capacity it does not have.
     explicit FixedHeapPool(std::size_t bytes)
         : storage_(std::make_unique<std::byte[]>(bytes)), capacity_(bytes) {}
 

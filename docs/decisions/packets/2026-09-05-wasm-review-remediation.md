@@ -101,3 +101,36 @@ The review is accepted, with two corrections to it:
 - 2026-09-05 - Note for future runs: AddressSanitizer binaries hang in this
   sandbox. UndefinedBehaviorSanitizer works. Plain builds work.
 - 2026-09-05 - Validator passes: 101 guidelines across 11 categories.
+- 2026-09-06 - **MCP grounding performed**, closing the verification the
+  buildout packet claimed and did not do. Both servers called directly.
+  - `cpp-perf-guidelines`: confirmed the published corpus contains no `wasm`
+    entries yet, as expected, and surfaced no contradiction with the new
+    guidelines.
+  - `cpp-guidelines`: searched, then fetched `I.4` and `SL.str.2` in full.
+    Findings beyond those the independent review had already raised:
+    - **`SL.str.2`** — twelve `const char*` members across WASM.2, 5, 8, 10, 11,
+      13 and 14 became `std::string_view`. The one survivor is
+      `extern "C" const char* build_variant()` in WASM.13, which crosses the C
+      ABI to JavaScript and must stay NUL-terminated; that exception is now
+      stated in the example.
+    - **`I.4`** — WASM.8's type-erasure boundary took `(const void*, size_t)`.
+      `I.4`'s enforcement is literally "report the use of `void*` as a parameter
+      or return type", and its bad example is that exact signature. Replaced
+      with `std::span<const std::byte>`, which erases the type without
+      discarding the size (`R.14`). Compiled and run.
+    - **`I.4` again, accepted rather than fixed** — WASM.3's
+      `step(void* user_data)` is dictated by the Emscripten C callback ABI and
+      cannot be typed away. Now confined to a single adapter that recovers the
+      type immediately, with the concession stated.
+    - **`I.2` / `R.6`** — WASM.3's `MainLoop` owns frame state in a
+      function-local static, which is non-`const` global state. Accepted,
+      because the browser provides exactly one main loop and the ABI carries no
+      caller-controlled context; annotated in the example and added to Caveats
+      so it is not read as a pattern to copy. Thread-safe initialisation per
+      `CP.110`.
+    - **`E.26`** — WASM.1's pool constructor relies on `make_unique` throwing,
+      while WASM.8 recommends `-fno-exceptions` for some builds. The tension is
+      now named in the example: under `-fno-exceptions` the throw becomes an
+      abort, which is still failing fast at init with a known budget.
+- 2026-09-06 - Changed examples re-verified by compilation: the span-based
+  registry compiled and run for both a scalar and a POD element type.

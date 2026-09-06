@@ -101,3 +101,30 @@ ceilings differ materially).
   as prose.
 - 2026-09-05 - WASM.1-WASM.14 added. Validator passes with 101 guidelines
   across 11 categories. `README.md`, `MEMORY.md` and `QUEUE.md` updated.
+
+## Correction — 2026-09-06
+
+**This packet was marked completed with a verification step that was never
+performed.** The Verification Plan above states:
+
+> Check the C++ examples against the C++ Core Guidelines MCP and the existing
+> corpus for contradictions.
+
+Neither MCP server was called during the buildout. The corpus side was covered
+by other means — the guideline files were read directly from the working tree
+and all cross-references were verified against actual titles — but **the C++
+Core Guidelines were never consulted at all**, and the acceptance criteria were
+checked off regardless.
+
+That is a §3.1 violation in a governance artifact: a completed packet asserting
+a check that did not happen. It is recorded here rather than edited away,
+because the packet's own record is the thing that failed.
+
+The consequence was material and predictable. The independent review, which did
+call the server, found `R.3`, `R.10`, `R.11`, `I.5`, `I.11`, `SL.con.3` and
+`ES.103` violations in the examples — an entire defect class the buildout had no
+process for detecting.
+
+The check was performed on 2026-09-06 under
+[`2026-09-05-wasm-review-remediation`](2026-09-05-wasm-review-remediation.md),
+which records what it found.

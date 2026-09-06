@@ -85,6 +85,15 @@ struct FrameContext {
 // for that whole time. An owning registry keeps that explicit: no raw `new`, no
 // `delete` in a callback (R.11), and the callback's pointer is plainly
 // non-owning (R.3).
+//
+// Two Core Guidelines are knowingly bent here, both because the browser's C
+// callback ABI dictates the shape:
+//   - I.2 / R.6 (avoid non-const globals): the loop is a process-wide singleton
+//     because the browser has exactly one, so ownership is a function-local
+//     static rather than a parameter. Initialisation is thread-safe (CP.110).
+//   - I.4 (no void* in interfaces): emscripten_set_main_loop_arg passes user
+//     data as void*. That is the ABI, not a choice. Confine it to the one
+//     adapter below and recover the type immediately.
 class MainLoop {
 public:
     // The callback receives a NON-owning pointer. Ownership stays here.
@@ -112,7 +121,8 @@ private:
     // Called once per frame by the browser. Returning is what lets the page
     // render, handle input and stay responsive -- it is the point, not an
     // inconvenience.
-    static void step(void* user_data) {
+    static void step(void* user_data) {          // signature fixed by the C ABI
+        // The only cast in the design. Everything below is strongly typed.
         auto& ctx = *static_cast<FrameContext*>(user_data);   // non-owning view
 
         const double current = emscripten_get_now() / 1000.0;
@@ -150,6 +160,10 @@ void run_browser() {
 
 ## Caveats
 
+- **The singleton is a concession to the platform, not a pattern to copy.**
+  `I.2` and `R.6` warn against non-`const` global state for good reasons; it is
+  accepted here only because the browser provides exactly one main loop and the
+  callback ABI carries no context parameter you control. Do not generalise it.
 - **The two loop modes have different ownership stories.** With
   `simulate_infinite_loop = 0` the stack unwinds, so frame state must be owned
   somewhere that survives the call. With `1` the stack is not unwound, but the

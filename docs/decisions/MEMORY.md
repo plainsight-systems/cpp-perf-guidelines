@@ -100,6 +100,13 @@ This corpus is maintained to the Plainsight Systems engineering philosophy:
   alpha channel in a SIMD kernel, and undefined behavior in a planner whose
   whole subject was careful planning. Recorded 2026-09-05.
 
+- **A verification step is not complete until it has been run.** The `wasm`
+  buildout packet listed an MCP grounding check in its Verification Plan, then
+  marked every acceptance criterion done without calling either server. The
+  independent review found exactly the defect class that check exists to catch.
+  Do not tick an acceptance criterion from intent; tick it from a tool result.
+  Recorded 2026-09-06.
+
 ## Active Workflow Pointers
 
 - Queue: `QUEUE.md`

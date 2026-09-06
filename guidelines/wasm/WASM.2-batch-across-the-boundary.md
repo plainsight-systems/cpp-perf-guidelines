@@ -110,7 +110,7 @@ private:
 // written reason. Acceptable: "once per material batch, 12 per frame."
 // Suspicious: "once per visible object."
 struct BoundaryBudget {
-    const char* phase;             // "upload instances", "submit draws"
+    std::string_view phase;        // "upload instances", "submit draws"
     int crossings_per_frame;       // must be bounded, not content-proportional
     bool scales_with_scene;        // if true, this is the thing to fix
 };

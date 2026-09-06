@@ -116,7 +116,7 @@ struct ConcurrencyPolicy {
     bool cross_origin_isolated;      // measured at runtime, not assumed
     bool shared_memory_available;    // implies the headers actually landed
     unsigned worker_count;           // 0 == single-threaded by design
-    const char* rationale;           // "third-party ad SDK lacks CORP"
+    std::string_view rationale;      // "third-party ad SDK lacks CORP"
 };
 ```
 
