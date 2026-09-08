@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/plainsight-systems-cpp-perf-guidelines-badge.png)](https://mseep.ai/app/plainsight-systems-cpp-perf-guidelines)
+
 # C++ Performance Guidelines
 
 A curated corpus of **low-level C++ performance guidelines** for game-engine and
