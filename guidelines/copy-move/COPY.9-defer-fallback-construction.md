@@ -131,9 +131,18 @@ void cache_good(std::map<int, std::string>& m, int key) {
   the map twice on a miss. Where that second lookup matters, use `lower_bound` to
   locate the insertion point once and `emplace_hint` there; the eager-evaluation
   point is unchanged.
+- **The eager cost is not always paid.** Under the as-if rule the optimizer may
+  delete an unused argument evaluation that has no observable side effects and
+  that it can see. A pure, inlinable fallback often folds to nothing:
+  `value_or(pure(n))` at `-O2` becomes a branchless select on a constant, with no
+  call. The cost is real when the fallback allocates or has other side effects
+  (`value_or(std::string(64, 'x'))` keeps its `operator new`), or when it is an
+  opaque call the optimizer cannot see through without LTO (this corpus, `GEN.8`;
+  `GEN.4` on ThinLTO). Reach for laziness when the fallback allocates, does I/O,
+  or crosses a translation-unit boundary.
 - **Do not preempt the profiler.** When the default is cheap, this is a
   pessimization of readability. Apply it where the eager construction shows up in
-  a measurement (Core Guidelines Per.1, Per.6).
+  a measurement, not on assumption (Core Guidelines Per.1, Per.6).
 
 ## References
 
@@ -149,4 +158,6 @@ void cache_good(std::map<int, std::string>& m, int key) {
   lazy-factory tradeoff —
   <https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c164-avoid-implicit-conversion-operators>
 - Related in this corpus: `COPY.7` (hidden temporaries at call boundaries),
-  `COPY.3` (sink-parameter shape).
+  `COPY.3` (sink-parameter shape), `GEN.8` (what the optimiser does not promise;
+  no cross-TU inlining without LTO) and `GEN.4` (ThinLTO) — on when the eager
+  evaluation is or is not elided.
